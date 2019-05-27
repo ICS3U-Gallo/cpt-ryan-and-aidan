@@ -190,3 +190,25 @@ def outside4_setup():
     room.background = arcade.load_texture("images/background_2.jpg")
 
     return room
+
+def create():
+    rooms_list = []
+    room = startroom_setup()
+    rooms_list.append(room)
+
+    room = outside1_setup()
+    rooms_list.append(room)
+
+    room = startcave_setup()
+    rooms_list.append(room)
+
+    room = outside2_setup()
+    rooms_list.append(room)
+
+    room = outside3_setup()
+    rooms_list.append(room)
+
+    room = outside4_setup()
+    rooms_list.append(room)
+
+    return rooms_list
