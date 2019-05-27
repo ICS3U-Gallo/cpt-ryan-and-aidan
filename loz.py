@@ -144,26 +144,7 @@ class MyGame(arcade.Window):
         self.enemy_list.append(enemy)
 
         # Our list of rooms
-        self.rooms = []
-
-        # Create the rooms. Extend the pattern for each room.
-        room = Rooms.startroom_setup()
-        self.rooms.append(room)
-
-        room = Rooms.outside1_setup()
-        self.rooms.append(room)
-
-        room = Rooms.startcave_setup()
-        self.rooms.append(room)
-
-        room = Rooms.outside2_setup()
-        self.rooms.append(room)
-
-        room = Rooms.outside3_setup()
-        self.rooms.append(room)
-
-        room = Rooms.outside4_setup()
-        self.rooms.append(room)
+        self.rooms = Rooms.create()
 
         # Our starting room number
         self.current_room = 0
