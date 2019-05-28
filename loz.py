@@ -192,25 +192,25 @@ class MyGame(arcade.Window):
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
 
-        if key == arcade.key.UP:
+        if key == arcade.key.W:
             self.up_pressed = True
-        elif key == arcade.key.DOWN:
+        elif key == arcade.key.S:
             self.down_pressed = True
-        elif key == arcade.key.LEFT:
+        elif key == arcade.key.A:
             self.left_pressed = True
-        elif key == arcade.key.RIGHT:
+        elif key == arcade.key.D:
             self.right_pressed = True
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
 
-        if key == arcade.key.UP:
+        if key == arcade.key.W:
             self.up_pressed = False
-        elif key == arcade.key.DOWN:
+        elif key == arcade.key.S:
             self.down_pressed = False
-        elif key == arcade.key.LEFT:
+        elif key == arcade.key.A:
             self.left_pressed = False
-        elif key == arcade.key.RIGHT:
+        elif key == arcade.key.D:
             self.right_pressed = False
 
     def update(self, delta_time):
@@ -249,6 +249,7 @@ class MyGame(arcade.Window):
                     self.current_room = 4
                     self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
                                                                      self.rooms[self.current_room].wall_list)
+                    self.player_sprite.center_y = 0
                 elif self.player_sprite.center_y > screen_height:
                     self.current_room = 2
                     self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
@@ -260,8 +261,6 @@ class MyGame(arcade.Window):
                     self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
                                                                      self.rooms[self.current_room].wall_list)
                     self.player_sprite.center_x = screen_width
-
-                    self.player_sprite.center_y = 0
                 elif self.player_sprite.center_y > screen_height:
                     self.current_room = 3
                     self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
