@@ -2,6 +2,7 @@ import arcade
 import os
 import math
 import Rooms
+import Enemy
 
 sprite_scale = 0.5
 native_sprite = 128
@@ -17,8 +18,6 @@ tex_right = 1
 tex_left = 0
 
 health = 6
-
-bullet_speed = 5
 
 boomboom = 60
 
@@ -72,7 +71,6 @@ class Explosion(arcade.Sprite):
         else:
             self.kill()
 
-
 class MyGame(arcade.Window):
 
     def __init__(self, width, height, title):
@@ -99,6 +97,7 @@ class MyGame(arcade.Window):
         self.player_list = None
         self.physics_engine = None
         self.enemy_list = None
+        self.enemy_physics_engine = None
 
         # Track the current state of what key is pressed
         self.left_pressed = False
@@ -131,39 +130,10 @@ class MyGame(arcade.Window):
         self.bullet_list = arcade.SpriteList()
         self.explosions_list = arcade.SpriteList()
 
-        enemy = arcade.Sprite("images/enemy.png", sprite_scale)
-        enemy.center_x = 120
-        enemy.center_y = screen_height - 120
-        enemy.angle = 180
-        self.enemy_list.append(enemy)
-
-        enemy = arcade.Sprite("images/enemy.png", sprite_scale)
-        enemy.center_x = screen_width - 120
-        enemy.center_y = screen_height - 120
-        enemy.angle = 180
-        self.enemy_list.append(enemy)
+        self.enemy_list = Enemy.create()
 
         # Our list of rooms
-        self.rooms = []
-
-        # Create the rooms. Extend the pattern for each room.
-        room = Rooms.startroom_setup()
-        self.rooms.append(room)
-
-        room = Rooms.outside1_setup()
-        self.rooms.append(room)
-
-        room = Rooms.startcave_setup()
-        self.rooms.append(room)
-
-        room = Rooms.outside2_setup()
-        self.rooms.append(room)
-
-        room = Rooms.outside3_setup()
-        self.rooms.append(room)
-
-        room = Rooms.outside4_setup()
-        self.rooms.append(room)
+        self.rooms = Rooms.create()
 
         # Our starting room number
         self.current_room = 0
@@ -182,7 +152,6 @@ class MyGame(arcade.Window):
         arcade.start_render()
 
         if self.player_sprite.dead:
-            print("dead")
             arcade.draw_text("You died", screen_width/2, screen_height/2, arcade.color.WHITE, 50,
                              align="center", anchor_x="center", anchor_y="center")
         else:
@@ -197,11 +166,11 @@ class MyGame(arcade.Window):
             # If you have coins or monsters, then copy and modify the line
             # above for each list.
             if self.current_room != 0 and self.current_room == 1:
-                self.enemy_list.draw()
+                self.enemy_list[self.current_room].draw()
                 self.bullet_list.draw()
-
+                self.explosions_list.draw()
             self.player_list.draw()
-            self.explosions_list.draw()
+
 
             for i in range(health):
                 arcade.draw_xywh_rectangle_filled(health_x, health_y, 20, 20, arcade.color.BLUE)
@@ -211,25 +180,25 @@ class MyGame(arcade.Window):
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
 
-        if key == arcade.key.UP:
+        if key == arcade.key.W:
             self.up_pressed = True
-        elif key == arcade.key.DOWN:
+        elif key == arcade.key.S:
             self.down_pressed = True
-        elif key == arcade.key.LEFT:
+        elif key == arcade.key.A:
             self.left_pressed = True
-        elif key == arcade.key.RIGHT:
+        elif key == arcade.key.D:
             self.right_pressed = True
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
 
-        if key == arcade.key.UP:
+        if key == arcade.key.W:
             self.up_pressed = False
-        elif key == arcade.key.DOWN:
+        elif key == arcade.key.S:
             self.down_pressed = False
-        elif key == arcade.key.LEFT:
+        elif key == arcade.key.A:
             self.left_pressed = False
-        elif key == arcade.key.RIGHT:
+        elif key == arcade.key.D:
             self.right_pressed = False
 
     def update(self, delta_time):
@@ -268,6 +237,7 @@ class MyGame(arcade.Window):
                     self.current_room = 4
                     self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
                                                                      self.rooms[self.current_room].wall_list)
+                    self.player_sprite.center_y = 0
                 elif self.player_sprite.center_y > screen_height:
                     self.current_room = 2
                     self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
@@ -279,8 +249,6 @@ class MyGame(arcade.Window):
                     self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
                                                                      self.rooms[self.current_room].wall_list)
                     self.player_sprite.center_x = screen_width
-
-                    self.player_sprite.center_y = 0
                 elif self.player_sprite.center_y > screen_height:
                     self.current_room = 3
                     self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
@@ -317,36 +285,15 @@ class MyGame(arcade.Window):
 
             self.frame_count += 1
 
-            for enemy in self.enemy_list:
-                if self.current_room != 0 and self.current_room == 1:
-                    # Get the destination location for the bullet
-                    dest_x = self.player_sprite.center_x
-                    dest_y = self.player_sprite.center_y
-
-                    # Do math to calculate how to get the bullet to the destination.
-                    # Calculation the angle in radians between the start points
-                    # and end points. This is the angle the bullet will travel.
-                    x_diff = dest_x - enemy.center_x
-                    y_diff = dest_y - enemy.center_y
-                    angle = math.atan2(y_diff, x_diff)
-
-                    # Set the enemy to face the player.
-                    enemy.angle = math.degrees(angle) - 90
-
+            if self.enemy_list[self.current_room] != None:
+                for enemy in self.enemy_list[self.current_room]:
+                    enemy.get_ang(self.player_sprite.center_x, self.player_sprite.center_y)
+                    enemy.update()
                     if self.frame_count % 180 == 0:
-                        bullet = arcade.Sprite("images/laserBlue01.png", sprite_scale)
-                        bullet.center_x = enemy.center_x
-                        bullet.center_y = enemy.center_y
-
-                        # Angle the bullet sprite
-                        bullet.angle = math.degrees(angle)
-
-                        # Taking into account the angle, calculate our change_x
-                        # and change_y. Velocity is how fast the bullet travels.
-                        bullet.change_x = math.cos(angle) * bullet_speed
-                        bullet.change_y = math.sin(angle) * bullet_speed
-
-                        self.bullet_list.append(bullet)
+                        self.bullet_list.append(enemy.fire())
+                    if self.frame_count % 10 == 0:
+                        enemy.get_move()
+                    print(enemy.center_x, enemy.center_y)
 
                 # Get rid of the bullet when it flies off-screen
                 for bullet in self.bullet_list:
@@ -375,7 +322,6 @@ class MyGame(arcade.Window):
                 self.player_sprite.kill()
                 self.player_sprite.dead = True
 
-        print(self.player_sprite.center_x)
 
 
 def main():
