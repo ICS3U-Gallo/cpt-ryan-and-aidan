@@ -3,6 +3,7 @@ import os
 import math
 import Rooms
 import Enemy
+import RoomLogic
 
 sprite_scale = 0.5
 native_sprite = 128
@@ -227,62 +228,7 @@ class MyGame(arcade.Window):
 
             # Do some logic here to figure out what room we are in, and if we need to go
             # to a different room.
-            if self.current_room == 0:
-                if self.player_sprite.center_x > screen_width:
-                    self.current_room = 1
-                    self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
-                                                                     self.rooms[self.current_room].wall_list)
-                    self.player_sprite.center_x = 0
-                elif self.player_sprite.center_x in range(670, 740) and self.player_sprite.center_y > screen_height:
-                    self.current_room = 4
-                    self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
-                                                                     self.rooms[self.current_room].wall_list)
-                    self.player_sprite.center_y = 0
-                elif self.player_sprite.center_y > screen_height:
-                    self.current_room = 2
-                    self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
-                                                                     self.rooms[self.current_room].wall_list)
-                    self.player_sprite.center_y = 0
-            elif self.current_room == 1:
-                if self.player_sprite.center_x < 0:
-                    self.current_room = 0
-                    self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
-                                                                     self.rooms[self.current_room].wall_list)
-                    self.player_sprite.center_x = screen_width
-                elif self.player_sprite.center_y > screen_height:
-                    self.current_room = 3
-                    self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
-                                                                     self.rooms[self.current_room].wall_list)
-                    self.player_sprite.center_y = 0
-            elif self.current_room == 2:
-                if self.player_sprite.center_y < 0:
-                    self.current_room = 0
-                    self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
-                                                                     self.rooms[self.current_room].wall_list)
-                    self.player_sprite.center_y = screen_height
-            elif self.current_room == 3:
-                if self.player_sprite.center_y < 0:
-                    self.current_room = 1
-                    self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
-                                                                     self.rooms[self.current_room].wall_list)
-                    self.player_sprite.center_y = screen_height
-                elif self.player_sprite.center_x < 0:
-                    self.current_room = 4
-                    self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
-                                                                     self.rooms[self.current_room].wall_list)
-                    self.player_sprite.center_x = screen_width
-            elif self.current_room == 4:
-                if self.player_sprite.center_y < 0:
-                    self.current_room = 0
-                    self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
-                                                                     self.rooms[self.current_room].wall_list)
-                    self.player_sprite.center_y = screen_height
-                elif self.player_sprite.center_x > screen_width:
-                    self.current_room = 3
-                    self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
-                                                                     self.rooms[self.current_room].wall_list)
-                    self.player_sprite.center_x = 0
-
+            RoomLogic.RoomLogic(self)
             self.frame_count += 1
 
             if self.enemy_list[self.current_room] != None:
