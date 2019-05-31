@@ -181,7 +181,7 @@ def outside4_setup():
 
     for y in (0, screen_height - sprite_size):
         for x in range(0, screen_width, sprite_size):
-            if (x != sprite_size * 10 and x != sprite_size * 11):
+            if (y == 0 and (x != sprite_size * 15 and x != sprite_size * 16)) or (y != 0 and (x != sprite_size * 5 and x != sprite_size * 6)):
                 wall = arcade.Sprite("images/boxCrate_double.png", sprite_scale)
                 wall.left = x
                 wall.bottom = y
