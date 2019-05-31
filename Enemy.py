@@ -85,6 +85,7 @@ def create():
     room4 = []
     room5 = []
     room6 = []
+    room7 = []
 
-    enemy_list = [None, room2, room3, room4, room5, room6]
+    enemy_list = [None, room2, room3, room4, room5, room6, room7]
     return enemy_list
