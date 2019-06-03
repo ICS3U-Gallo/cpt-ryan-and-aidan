@@ -1,6 +1,5 @@
 import arcade
 import os
-import math
 import Rooms
 import Enemy
 import RoomLogic
@@ -17,8 +16,6 @@ move_speed = 10
 
 tex_right = 1
 tex_left = 0
-
-health = 6
 
 boomboom = 60
 
@@ -38,6 +35,7 @@ class Player(arcade.Sprite):
 
         # By default, face right.
         self.set_texture(tex_right)
+        self.health = 6
         self.dead = False
 
     def update(self):
@@ -48,29 +46,6 @@ class Player(arcade.Sprite):
         if self.change_x > 0:
             self.set_texture(tex_right)
 
-
-class Explosion(arcade.Sprite):
-    """ This class creates an explosion animation """
-
-    # Static variable that holds all the explosion textures
-    explosion_textures = []
-
-    def __init__(self, texture_list):
-        super().__init__("images/explosion/explosion0000.png")
-
-        # Start at the first frame
-        self.current_texture = 0
-        self.textures = texture_list
-
-    def update(self):
-
-        # Update to the next frame of the animation. If we are at the end
-        # of our frames, then delete this sprite.
-        self.current_texture += 1
-        if self.current_texture < len(self.textures):
-            self.set_texture(self.current_texture)
-        else:
-            self.kill()
 
 class MyGame(arcade.Window):
 
@@ -173,7 +148,7 @@ class MyGame(arcade.Window):
             self.player_list.draw()
 
 
-            for i in range(health):
+            for i in range(self.player_sprite.health):
                 arcade.draw_xywh_rectangle_filled(health_x, health_y, 20, 20, arcade.color.BLUE)
                 health_x += 50
 
@@ -203,7 +178,6 @@ class MyGame(arcade.Window):
             self.right_pressed = False
 
     def update(self, delta_time):
-        global health
         """ Movement and game logic """
         if self.player_sprite.dead:
             pass
@@ -235,38 +209,29 @@ class MyGame(arcade.Window):
                 for enemy in self.enemy_list[self.current_room]:
                     enemy.get_ang(self.player_sprite.center_x, self.player_sprite.center_y)
                     enemy.update()
-                    if self.frame_count % 180 == 0:
-                        self.bullet_list.append(enemy.fire())
-                    if self.frame_count % 10 == 0:
+                    if type(enemy) == Enemy.Range_Enemy:
+                        enemy.hit_walls(self.rooms[self.current_room].wall_list)
+                        if self.frame_count % 180 == 0:
+                            self.bullet_list.append(enemy.fire())
+                        if self.frame_count % 30 == 0:
+                            enemy.random_move()
+                    elif type(enemy) == Enemy.Melee_Enemy:
+                        enemy.hit_player(self.player_sprite)
+                        enemy.hit_walls(self.rooms[self.current_room].wall_list)
                         enemy.get_move()
-                    print(enemy.center_x, enemy.center_y)
 
                 # Get rid of the bullet when it flies off-screen
                 for bullet in self.bullet_list:
-                    hit_player = arcade.check_for_collision(self.player_sprite, bullet)
-                    hit_wall = arcade.check_for_collision_with_list(bullet, self.rooms[self.current_room].wall_list)
-                    if bullet.top < 0:
-                        bullet.kill()
-                    elif len(hit_wall) > 0:
-                        explosion = Explosion(self.explosion_texture_list)
-                        explosion.center_x = bullet.center_x
-                        explosion.center_y = bullet.center_y
-                        self.explosions_list.append(explosion)
-                        bullet.kill()
-                    elif hit_player:
-                        health -= 1
-                        explosion = Explosion(self.explosion_texture_list)
-                        explosion.center_x = bullet.center_x
-                        explosion.center_y = bullet.center_y
-                        self.explosions_list.append(explosion)
-                        bullet.kill()
+                    Enemy.bullet_hit(bullet, self)
+
 
                 self.bullet_list.update()
                 self.explosions_list.update()
 
-            if health == 0:
+            if self.player_sprite.health == 0:
                 self.player_sprite.kill()
                 self.player_sprite.dead = True
+
 
 
 
