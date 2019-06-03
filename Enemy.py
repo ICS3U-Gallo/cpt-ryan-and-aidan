@@ -107,7 +107,6 @@ class Melee_Enemy(arcade.Sprite):
 
     def hit_walls(self, walls):
         for wall in arcade.check_for_collision_with_list(self, walls):
-            print(seitlf.left - wall.right, self.change_x)
             if self.right - wall.left < self.change_x:
                 self.right -= self.change_x
             elif self.left - wall.right > self.change_x:

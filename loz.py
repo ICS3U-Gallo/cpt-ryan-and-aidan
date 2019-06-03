@@ -35,8 +35,10 @@ class Player(arcade.Sprite):
 
         # By default, face right.
         self.set_texture(tex_right)
+
         self.health = 6
         self.dead = False
+        self.sword = False
 
     def update(self):
 
@@ -45,6 +47,20 @@ class Player(arcade.Sprite):
             self.set_texture(tex_left)
         if self.change_x > 0:
             self.set_texture(tex_right)
+
+    # def get_sword(self):
+    #     self.sword = arcade.Sprite("images/sword.png", scale=64 / 1000)
+    #     self.sword.center_x = self.center_x+sprite_size
+    #     self.sword.center_y = self.center_y
+    #     self.sword.angle = 270
+    #
+    # def attack(self, enemy_list):
+    #     if self.
+    #     for enemy in arcade.check_for_collision_with_list(self.sword, enemy_list):
+    #         enemy.kill()
+    #
+    # def stop_attack(self):
+    #     self.sword.kill()
 
 
 class MyGame(arcade.Window):
@@ -80,6 +96,7 @@ class MyGame(arcade.Window):
         self.right_pressed = False
         self.up_pressed = False
         self.down_pressed = False
+        self.player_attack = False
 
         # Pre-load the animation frames. We don't do this in the __init__
         # of the explosion sprite because it
@@ -102,7 +119,6 @@ class MyGame(arcade.Window):
         self.player_sprite.center_y = 100
         self.player_list = arcade.SpriteList()
         self.player_list.append(self.player_sprite)
-        self.enemy_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
         self.explosions_list = arcade.SpriteList()
 
@@ -146,6 +162,8 @@ class MyGame(arcade.Window):
                 self.bullet_list.draw()
                 self.explosions_list.draw()
             self.player_list.draw()
+            self.player_sprite.sword.draw()
+
 
 
             for i in range(self.player_sprite.health):
@@ -164,6 +182,8 @@ class MyGame(arcade.Window):
             self.left_pressed = True
         elif key == arcade.key.D:
             self.right_pressed = True
+        if key == arcade.key.J:
+            self.player_attack = True
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
@@ -194,6 +214,8 @@ class MyGame(arcade.Window):
                 self.player_sprite.change_x = -move_speed
             elif self.right_pressed and not self.left_pressed:
                 self.player_sprite.change_x = move_speed
+            if self.player_attack:
+                self.player_sprite.attack()
 
             # Call update on all sprites (The sprites don't do much in this
             # example though.)
