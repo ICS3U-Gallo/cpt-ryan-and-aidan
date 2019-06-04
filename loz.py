@@ -38,29 +38,48 @@ class Player(arcade.Sprite):
 
         self.health = 6
         self.dead = False
-        self.sword = False
+        self.weapon = arcade.SpriteList()
+        self.hold_sword = False
 
     def update(self):
 
         # Figure out if we should face left or right
         if self.change_x < 0:
+            self.face_left = True
             self.set_texture(tex_left)
         if self.change_x > 0:
+            self.face_left = False
             self.set_texture(tex_right)
 
-    # def get_sword(self):
-    #     self.sword = arcade.Sprite("images/sword.png", scale=64 / 1000)
-    #     self.sword.center_x = self.center_x+sprite_size
-    #     self.sword.center_y = self.center_y
-    #     self.sword.angle = 270
-    #
-    # def attack(self, enemy_list):
-    #     if self.
-    #     for enemy in arcade.check_for_collision_with_list(self.sword, enemy_list):
-    #         enemy.kill()
-    #
-    # def stop_attack(self):
-    #     self.sword.kill()
+    def get_sword(self):
+        self.sword = arcade.Sprite("images/sword.png", scale=64/1000)
+        self.sword_pos()
+        self.weapon.append(self.sword)
+        self.hold_sword = True
+
+    def attack(self, enemy_list):
+        if not self.hold_sword:
+            self.get_sword()
+        else:
+            self.sword_pos()
+        for enemy in arcade.check_for_collision_with_list(self.sword, enemy_list):
+            enemy.kill()
+
+    def sword_pos(self):
+        if self.face_left:
+            self.sword.center_x = self.center_x - sprite_size
+            self.sword.center_y = self.center_y
+            self.sword.angle = 0
+        else:
+            self.sword.center_x = self.center_x + sprite_size
+            self.sword.center_y = self.center_y
+            self.sword.angle = 270
+
+
+
+    def stop_attack(self):
+        self.sword.kill()
+        self.hold_sword = False
 
 
 class MyGame(arcade.Window):
@@ -162,7 +181,7 @@ class MyGame(arcade.Window):
                 self.bullet_list.draw()
                 self.explosions_list.draw()
             self.player_list.draw()
-            self.player_sprite.sword.draw()
+            self.player_sprite.weapon.draw()
 
 
 
@@ -196,6 +215,9 @@ class MyGame(arcade.Window):
             self.left_pressed = False
         elif key == arcade.key.D:
             self.right_pressed = False
+        if key == arcade.key.J:
+            self.player_attack = False
+            self.player_sprite.stop_attack()
 
     def update(self, delta_time):
         """ Movement and game logic """
@@ -215,7 +237,8 @@ class MyGame(arcade.Window):
             elif self.right_pressed and not self.left_pressed:
                 self.player_sprite.change_x = move_speed
             if self.player_attack:
-                self.player_sprite.attack()
+                self.player_sprite.attack(self.enemy_list[self.current_room])
+
 
             # Call update on all sprites (The sprites don't do much in this
             # example though.)
