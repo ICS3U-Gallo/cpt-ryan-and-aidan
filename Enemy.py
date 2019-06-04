@@ -184,6 +184,7 @@ def create():
     outside2 = arcade.SpriteList()
     outside3 = arcade.SpriteList()
     outside4 = arcade.SpriteList()
+    cave2shop = arcade.SpriteList()
 
-    enemy_list = [startroom, outside1, startcave, outside2, outside3, outside4]
+    enemy_list = [startroom, outside1, startcave, outside2, outside3, outside4, cave2shop]
     return enemy_list
