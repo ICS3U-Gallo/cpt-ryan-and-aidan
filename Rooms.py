@@ -15,6 +15,7 @@ class Room:
 
         self.background_list = None
 
+        self.isshop = False
 
 def startroom_setup():
     room = Room()
@@ -194,7 +195,11 @@ def outside4_setup():
 def cave2shop_setup():
     room = Room()
 
+
     room.wall_list = arcade.SpriteList()
+
+
+
 
     for x in (0, screen_width - sprite_size):
         for y in range(0, screen_height, sprite_size):

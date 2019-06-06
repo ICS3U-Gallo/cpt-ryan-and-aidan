@@ -4,6 +4,9 @@ import Rooms
 import Enemy
 import RoomLogic
 
+
+
+
 sprite_scale = 0.5
 native_sprite = 128
 sprite_size = int(sprite_scale * native_sprite)
@@ -232,7 +235,7 @@ class MyGame(arcade.Window):
                 self.player_sprite.kill()
                 self.player_sprite.dead = True
 
-
+            print(self.player_sprite.center_x, self.player_sprite.center_y)
 
 
 def main():
