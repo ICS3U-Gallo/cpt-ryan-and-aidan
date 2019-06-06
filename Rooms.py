@@ -12,7 +12,6 @@ class Room:
 
     def __init__(self):
         self.wall_list = None
-
         self.background_list = None
 
 
