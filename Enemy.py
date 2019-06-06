@@ -19,10 +19,12 @@ class Range_Enemy(arcade.Sprite):
         self.texture = arcade.load_texture("images/enemy.png", scale=sprite_scale)
         self.change_x = 0
         self.change_y = 0
+        self.hit_timer = 0
 
     def update(self):
         self.center_x += self.change_x
         self.center_y += self.change_y
+        self.hit_timer += 1
 
     def get_ang(self, player_x, player_y):
         # Get the destination location for the bullet
@@ -56,6 +58,12 @@ class Range_Enemy(arcade.Sprite):
     def random_move(self):
         self.change_x = random.randrange(-1, 2)
         self.change_y = random.randrange(-1, 2)
+
+    def hit_player(self,player):
+        if arcade.check_for_collision(player, self) > 0:
+            if self.hit_timer > 60:
+                player.health -= 1
+                self.hit_timer = 0
 
     def hit_walls(self, walls):
         if len(arcade.check_for_collision_with_list(self, walls)) > 0:
@@ -168,6 +176,11 @@ def outside1_setup():
     enemy = Range_Enemy()
     enemy.center_x = 160
     enemy.center_y = screen_height - 160
+    enemy_list.append(enemy)
+
+    enemy = Range_Enemy()
+    enemy.center_x = screen_width - 160
+    enemy.center_y = 160
     enemy_list.append(enemy)
 
     enemy = Melee_Enemy()
