@@ -156,7 +156,7 @@ def outside3_setup():
 
     for y in (0, screen_height - sprite_size):
         for x in range(0, screen_width, sprite_size):
-            if (x != sprite_size * 10 and x != sprite_size * 11) or y != 0:
+            if (y == 0 and (x != sprite_size * 10 and x != sprite_size * 11)) or (y != 0 and (x != sprite_size * 5 and x != sprite_size * 6)):
                 wall = arcade.Sprite("images/boxCrate_double.png", sprite_scale)
                 wall.left = x
                 wall.bottom = y
@@ -181,13 +181,38 @@ def outside4_setup():
 
     for y in (0, screen_height - sprite_size):
         for x in range(0, screen_width, sprite_size):
-            if (x != sprite_size * 10 and x != sprite_size * 11):
+            if (y == 0 and (x != sprite_size * 15 and x != sprite_size * 16)) or (y != 0 and (x != sprite_size * 5 and x != sprite_size * 6)):
                 wall = arcade.Sprite("images/boxCrate_double.png", sprite_scale)
                 wall.left = x
                 wall.bottom = y
                 room.wall_list.append(wall)
 
     room.background = arcade.load_texture("images/background_2.jpg")
+
+    return room
+
+def cave2shop_setup():
+    room = Room()
+
+    room.wall_list = arcade.SpriteList()
+
+    for x in (0, screen_width - sprite_size):
+        for y in range(0, screen_height, sprite_size):
+            wall = arcade.Sprite("images/boxCrate_double.png", sprite_scale)
+            wall.left = x
+            wall.bottom = y
+            room.wall_list.append(wall)
+
+    for y in (0, screen_height - sprite_size):
+        for x in range(0, screen_width, sprite_size):
+            if (x != sprite_size * 5 and x != sprite_size * 6) or y != 0:
+                wall = arcade.Sprite("images/boxCrate_double.png", sprite_scale)
+                wall.left = x
+                wall.bottom = y
+                room.wall_list.append(wall)
+
+
+    room.background = arcade.load_texture("images/background.jpg")
 
     return room
 
@@ -209,6 +234,9 @@ def create():
     rooms_list.append(room)
 
     room = outside4_setup()
+    rooms_list.append(room)
+
+    room = cave2shop_setup()
     rooms_list.append(room)
 
     return rooms_list

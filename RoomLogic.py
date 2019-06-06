@@ -77,9 +77,20 @@ def RoomLogic(player):
             player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
                                                              player.rooms[player.current_room].wall_list)
             player.player_sprite.center_x = screen_width
+        elif player.player_sprite.center_y > screen_height:
+            player.current_room = 6
+            player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
+                                                               player.rooms[player.current_room].wall_list)
+            player.player_sprite.center_y = 0
     elif player.current_room == 5:
         if player.player_sprite.center_x > screen_width:
             player.current_room = 4
             player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
                                                              player.rooms[player.current_room].wall_list)
             player.player_sprite.center_x = 0
+    elif player.current_room == 6:
+        if player.player_sprite.center_y < 0:
+            player.current_room = 4
+            player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
+                                                               player.rooms[player.current_room].wall_list)
+            player.player_sprite.center_y = screen_height
