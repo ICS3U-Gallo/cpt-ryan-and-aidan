@@ -16,6 +16,16 @@ health = 6
 
 boomboom = 60
 
+def shoplogic(player):
+
+    if player.player_sprite.center_x in range(290, 310) and player.player_sprite.center_y in range(400, 420):
+        player.player_sprite.coins -= 10
+        player.player_sprite.health += 1
+
+    elif player.player_sprite.center_x in range(572, 592) and player.player_sprite.center_y in range(400, 420):
+        player.player_sprite.coins -= 20
+        player.player_sprite.arrows += 2
+
 def RoomLogic(player):
     if player.current_room == 0:
         if player.player_sprite.center_x > screen_width:
@@ -89,6 +99,7 @@ def RoomLogic(player):
                                                              player.rooms[player.current_room].wall_list)
             player.player_sprite.center_x = 0
     elif player.current_room == 6:
+        shoplogic()
         if player.player_sprite.center_y < 0:
             player.current_room = 4
             player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
