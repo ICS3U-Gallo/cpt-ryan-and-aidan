@@ -13,6 +13,7 @@ screen_height = sprite_size * 10
 screen_title = "Temporary Title"
 
 move_speed = 10
+arrow_speed = 7
 
 tex_right = 1
 tex_left = 0
@@ -35,15 +36,21 @@ class Player(arcade.Sprite):
 
         # By default, face right.
         self.face_dir = 1
+        # 0 = up, 1 = right, 2 = down, 3 = left
         self.set_texture(tex_right)
 
         self.coins = 0
         self.health = 6
         self.dead = False
 
+        self.got_sword = True
+        self.got_bow = True
         self.weapon = arcade.SpriteList()
+        self.arrows_list = arcade.SpriteList()
         self.hold_sword = False
+        self.hold_bow = False
         self.sword_hit_timer = 0
+        self.bow_canfire = True
 
     def update(self):
 
@@ -59,20 +66,78 @@ class Player(arcade.Sprite):
             self.face_dir = 1
             self.set_texture(tex_right)
         if self.hold_sword:
-           self.sword_hit_timer += 1
+            self.sword_hit_timer += 1
+        elif self.hold_bow:
+            self.bow_pos()
 
     def get_bow(self):
         self.bow = arcade.Sprite("images/bow.png", scale=64/256)
         self.weapon.append(self.bow)
+        self.hold_bow = True
+
+    def bow_pos(self):
         self.bow.center_x = self.center_x
         self.bow.center_y = self.center_y
+        if self.face_dir == 3:
+            self.bow.center_x = self.center_x - sprite_size / 2
+            self.bow.angle = 45
+        elif self.face_dir == 2:
+            self.bow.center_y = self.center_y - sprite_size / 2
+            self.bow.angle = 135
+        elif self.face_dir == 1:
+            self.bow.center_x = self.center_x + sprite_size / 2
+            self.bow.angle = 225
+        elif self.face_dir == 0:
+            self.bow.center_y = self.center_y + sprite_size / 2
+            self.bow.angle = 315
 
-    def bow_fire(self, enemy_list, wall_list):
-        self.arrow = arcade.Sprite("image/wormGreen.png", scale=sprite_scale)
-        self.arrow_getdir()
+    def bow_fire(self):
+        if not self.hold_bow:
+            self.get_bow()
+        if len(self.arrows_list) < 1:
+            self.arrow = arcade.Sprite("images/arrow.png", scale=32/300)
+            self.arrows_list.append(self.arrow)
+            self.arrow_getdir()
 
+    def arrow_getdir(self):
+        self.arrow.center_x = self.bow.center_x
+        self.arrow.center_y = self.bow.center_y
+        if self.face_dir == 3:
+            self.arrow.change_x = -arrow_speed
+            self.arrow.angle = 135
+        elif self.face_dir == 2:
+            self.arrow.change_y = -arrow_speed
+            self.arrow.angle = 225
+        elif self.face_dir == 1:
+            self.arrow.change_x = arrow_speed
+            self.arrow.angle = 315
+        elif self.face_dir == 0:
+            self.arrow.change_y = arrow_speed
+            self.arrow.angle = 45
+
+
+    def arrow_hit(self, enemy_list, wall_list):
+        hit_wall = arcade.check_for_collision_with_list(self.arrow, wall_list)
+        hit_enemy = arcade.check_for_collision_with_list(self.arrow, enemy_list)
+        for enemy in hit_enemy:
+            enemy.kill()
+            self.coins += Enemy.coins_drop()
+            self.arrows_list.remove(self.arrow)
+            self.arrow.kill()
+        if len(hit_wall) > 0:
+            self.arrows_list.remove(self.arrow)
+            self.arrow.kill()
+        if self.arrow.bottom > screen_height or self.arrow.top < 0 or self.arrow.right < 0 or self.arrow.left > screen_width:
+            self.arrows_list.remove(self.arrow)
+            self.arrow.kill()
+
+    def stop_hold_bow(self):
+        self.bow.kill()
+        self.hold_bow = False
 
     def get_sword(self):
+        if self.hold_bow:
+            self.stop_hold_bow()
         self.sword = arcade.Sprite("images/sword.png", scale=64 / 1000)
         self.weapon.append(self.sword)
         self.hold_sword = True
@@ -86,20 +151,18 @@ class Player(arcade.Sprite):
 
 
     def sword_pos(self):
+        self.sword.center_x = self.center_x
+        self.sword.center_y = self.center_y
         if self.face_dir == 3:
             self.sword.center_x = self.center_x - sprite_size
-            self.sword.center_y = self.center_y
             self.sword.angle = 0
         elif self.face_dir == 2:
-            self.sword.center_x = self.center_x
             self.sword.center_y = self.center_y - sprite_size
             self.sword.angle = 90
         elif self.face_dir == 1:
             self.sword.center_x = self.center_x + sprite_size
-            self.sword.center_y = self.center_y
             self.sword.angle = 270
         elif self.face_dir == 0:
-            self.sword.center_x = self.center_x
             self.sword.center_y = self.center_y + sprite_size
             self.sword.angle = 0
 
@@ -217,6 +280,7 @@ class MyGame(arcade.Window):
                 self.explosions_list.draw()
             self.player_list.draw()
             self.player_sprite.weapon.draw()
+            self.player_sprite.arrows_list.draw()
 
 
 
@@ -254,8 +318,9 @@ class MyGame(arcade.Window):
             self.left_pressed = False
         elif key == arcade.key.D:
             self.right_pressed = False
-        if key == arcade.key.J:
-            pass
+        if key == arcade.key.K:
+            self.player_range_attack = False
+            self.player_sprite.bow_canfire = True
 
     def update(self, delta_time):
         """ Movement and game logic """
@@ -274,13 +339,17 @@ class MyGame(arcade.Window):
                 self.player_sprite.change_x = -move_speed
             elif self.right_pressed and not self.left_pressed:
                 self.player_sprite.change_x = move_speed
-            if self.player_melee_attack and self.player_sprite.sword_hit_timer < 20:
+            if self.player_melee_attack and self.player_sprite.sword_hit_timer < 20 and self.player_sprite.got_sword:
                 self.player_sprite.melee_attack(self.enemy_list[self.current_room], self.rooms[self.current_room].wall_list)
             elif self.player_sprite.sword_hit_timer == 20:
                 self.player_sprite.stop_melee_attack()
                 self.player_melee_attack = False
-            if self.player_range_attack and not self.player_melee_attack:
-                self.player_sprite.bow_fire(self.enemy_list[self.current_room], self.rooms[self.current_room].wall_list)
+            if self.player_range_attack and not self.player_sprite.hold_sword and self.player_sprite.bow_canfire and self.player_sprite.got_bow:
+                self.player_sprite.bow_fire()
+                self.player_sprite.bow_canfire = False
+            if len(self.player_sprite.arrows_list) > 0:
+                self.player_sprite.arrow_hit(self.enemy_list[self.current_room], self.rooms[self.current_room].wall_list)
+
 
             # Call update on all sprites (The sprites don't do much in this
             # example though.)
@@ -313,15 +382,14 @@ class MyGame(arcade.Window):
 
             self.bullet_list.update()
             self.explosions_list.update()
+            self.player_sprite.arrows_list.update()
+
 
             if self.player_sprite.health == 0:
                 self.player_sprite.kill()
                 self.player_sprite.dead = True
 
             self.frame_count += 1
-
-
-
 
 
 def main():
