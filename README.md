@@ -1,5 +1,4 @@
-# cpt-ryan-and-aidan
-cpt-ryan-and-aidan created by GitHub Classroom
+# Legend of Remake
 
+Trying to remake legend of zelda with python and arcade
 
-Bootleg Games
