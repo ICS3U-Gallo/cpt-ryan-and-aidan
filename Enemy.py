@@ -148,6 +148,13 @@ class Explosion(arcade.Sprite):
         else:
             self.kill()
 
+def coins_drop():
+    chance = random.randrange(10)
+    if chance == 0:
+        return 5
+    else:
+        return 1
+
 def bullet_hit(bullet, game):
     hit_player = arcade.check_for_collision(game.player_sprite, bullet)
     hit_wall = arcade.check_for_collision_with_list(bullet, game.rooms[game.current_room].wall_list)
