@@ -10,7 +10,7 @@ sprite_size = int(sprite_scale * native_sprite)
 
 screen_width = sprite_size * 18
 screen_height = sprite_size * 10
-screen_title = "Temporary Title"
+screen_title = "Comp Sci CPT - Legend of Remaked"
 
 move_speed = 10
 arrow_speed = 7
@@ -41,12 +41,15 @@ class Player(arcade.Sprite):
 
         self.coins = 0
         self.health = 6
+        self.arrows_count = 0
         self.dead = False
 
         self.got_sword = True
         self.got_bow = True
         self.weapon = arcade.SpriteList()
         self.arrows_list = arcade.SpriteList()
+
+
         self.hold_sword = False
         self.hold_bow = False
         self.sword_hit_timer = 0
@@ -94,10 +97,11 @@ class Player(arcade.Sprite):
     def bow_fire(self):
         if not self.hold_bow:
             self.get_bow()
-        if len(self.arrows_list) < 1:
+        if len(self.arrows_list) < 1 and self.arrows_count > 0:
             self.arrow = arcade.Sprite("images/arrow.png", scale=32/300)
             self.arrows_list.append(self.arrow)
             self.arrow_getdir()
+            self.arrows_count -= 1
 
     def arrow_getdir(self):
         self.arrow.center_x = self.bow.center_x
