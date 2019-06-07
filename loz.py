@@ -108,6 +108,7 @@ class MyGame(arcade.Window):
         self.enemy_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
         self.explosions_list = arcade.SpriteList()
+        self.itemone = False
 
         self.enemy_list = Enemy.create()
 
@@ -148,6 +149,8 @@ class MyGame(arcade.Window):
                 self.enemy_list[self.current_room].draw()
                 self.bullet_list.draw()
                 self.explosions_list.draw()
+            elif self.current_room == 6:
+                RoomLogic.shopdraw()
             self.player_list.draw()
 
 

@@ -16,15 +16,31 @@ health = 6
 
 boomboom = 60
 
+
+
+def shopdraw():
+
+    heart_boost = arcade.Sprite("images/heart.png", sprite_scale)
+
+    heart_boost.center_x = 300
+    heart_boost.center_y = 410
+
+    heart_boost.draw()
+
 def shoplogic(player):
 
-    if player.player_sprite.center_x in range(290, 310) and player.player_sprite.center_y in range(400, 420):
-        player.player_sprite.coins -= 10
-        player.player_sprite.health += 1
+    if player.player_sprite.center_x in range(269, 331) and player.player_sprite.center_y in range(389, 431):
+        while player.itemone == False:
+            if player.player_sprite.health < 6:
+                player.player_sprite.health += 1
+            player.itemone = True
+        #player.player_sprite.coins -= 10
+        #player.player_sprite.health += 1
 
     elif player.player_sprite.center_x in range(572, 592) and player.player_sprite.center_y in range(400, 420):
-        player.player_sprite.coins -= 20
-        player.player_sprite.arrows += 2
+        print("Bought item 2")
+        #player.player_sprite.coins -= 20
+        #player.player_sprite.arrows += 2
 
 def RoomLogic(player):
     if player.current_room == 0:
@@ -99,7 +115,7 @@ def RoomLogic(player):
                                                              player.rooms[player.current_room].wall_list)
             player.player_sprite.center_x = 0
     elif player.current_room == 6:
-        shoplogic()
+        shoplogic(player)
         if player.player_sprite.center_y < 0:
             player.current_room = 4
             player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
