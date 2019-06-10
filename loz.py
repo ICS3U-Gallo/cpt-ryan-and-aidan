@@ -204,6 +204,8 @@ class MyGame(arcade.Window):
         # Sprite lists
         self.current_room = 0
 
+        self.menu_page = 0
+
         # Set up the player
         self.rooms = None
         self.player_sprite = None
@@ -255,8 +257,7 @@ class MyGame(arcade.Window):
 
             # Create a physics engine for this room
             self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.rooms[self.current_room].wall_list)
-        else:
-            self.menu_page = 0
+
 
     def on_draw(self):
         health_x = 20
@@ -414,8 +415,7 @@ class MyGame(arcade.Window):
 
     def on_mouse_press(self, x, y, button, modifiers):
         if not game_start:
-            if x > 100 and x < 600:
-                self.menu_page = 1
+            self.menu_page = Menu.menu_switch(self.menu_page, x, y)
 
 
 def main():
