@@ -23,6 +23,7 @@ boomboom = 60
 
 game_start = False
 
+
 class Player(arcade.Sprite):
 
     def __init__(self):
@@ -40,9 +41,9 @@ class Player(arcade.Sprite):
         # 0 = up, 1 = right, 2 = down, 3 = left
         self.set_texture(tex_right)
 
-        self.coins = 0
+        self.coins = 999
         self.health = 6
-        self.arrows_count = 0
+        self.arrows_count = 999
         self.dead = False
 
         self.got_sword = True
@@ -78,6 +79,7 @@ class Player(arcade.Sprite):
         self.bow = arcade.Sprite("images/bow.png", scale=64/256)
         self.weapon.append(self.bow)
         self.hold_bow = True
+        self.bow_pos()
 
     def bow_pos(self):
         self.bow.center_x = self.center_x
@@ -100,8 +102,9 @@ class Player(arcade.Sprite):
             self.get_bow()
         if len(self.arrows_list) < 1 and self.arrows_count > 0:
             self.arrow = arcade.Sprite("images/arrow.png", scale=32/300)
-            self.arrows_list.append(self.arrow)
             self.arrow_getdir()
+            self.arrows_list.append(self.arrow)
+            print(self.arrow.center_x, self.arrow.center_y)
             self.arrows_count -= 1
 
     def arrow_getdir(self):
@@ -200,11 +203,9 @@ class MyGame(arcade.Window):
         os.chdir(file_path)
 
         self.frame_count = 0
-
+        self.menu_page = 0
         # Sprite lists
         self.current_room = 0
-
-        self.menu_page = 0
 
         # Set up the player
         self.rooms = None
@@ -246,6 +247,9 @@ class MyGame(arcade.Window):
             self.player_list.append(self.player_sprite)
             self.bullet_list = arcade.SpriteList()
             self.explosions_list = arcade.SpriteList()
+            self.itemone = False
+            self.itemtwo = False
+            self.itemthree = False
 
             self.enemy_list = Enemy.create()
 
@@ -271,7 +275,7 @@ class MyGame(arcade.Window):
 
         if game_start:
             if self.player_sprite.dead:
-                arcade.draw_text("You died", screen_width/2, screen_height/2, arcade.color.WHITE, 50,
+                arcade.draw_text("You died", screen_width/2, screen_height/2, arcade.color.BLACK, 50,
                                  align="center", anchor_x="center", anchor_y="center")
             else:
 
@@ -289,7 +293,7 @@ class MyGame(arcade.Window):
                 self.explosions_list.draw()
                 self.player_list.draw()
                 if self.current_room == 6:
-                    RoomLogic.shopdraw()
+                    RoomLogic.shopdraw(self)
                 self.player_sprite.weapon.draw()
                 self.player_sprite.arrows_list.draw()
 
@@ -376,26 +380,30 @@ class MyGame(arcade.Window):
 
                 # Do some logic here to figure out what room we are in, and if we need to go
                 # to a different room.
+                Enemy.bullet_removal(self)
                 RoomLogic.RoomLogic(self)
 
-
                 for enemy in self.enemy_list[self.current_room]:
-                    enemy.get_ang(self.player_sprite.center_x, self.player_sprite.center_y)
-                    enemy.update()
-                    enemy.hit_player(self.player_sprite)
-                    if type(enemy) == Enemy.Range_Enemy:
-                        enemy.hit_walls(self.rooms[self.current_room].wall_list)
-                        if self.frame_count % 180 == 0:
-                            self.bullet_list.append(enemy.fire())
-                        if self.frame_count % 30 == 0:
-                            enemy.random_move()
-                    elif type(enemy) == Enemy.Melee_Enemy:
-                        enemy.hit_walls(self.rooms[self.current_room].wall_list)
-                        enemy.get_move()
+                    if type(enemy) == Enemy.Boss:
+                        if self.frame_count % 60 == 0:
+                            self.bullet_list.append(enemy.fire(self.player_sprite))
+                    else:
+                        enemy.get_ang(self.player_sprite.center_x, self.player_sprite.center_y)
+                        enemy.update()
+                        enemy.hit_player(self.player_sprite)
+                        if type(enemy) == Enemy.Range_Enemy:
+                            enemy.hit_walls(self.rooms[self.current_room].wall_list)
+                            if self.frame_count % 180 == 0:
+                                self.bullet_list.append(enemy.fire())
+                            if self.frame_count % 30 == 0:
+                                enemy.random_move()
+                        elif type(enemy) == Enemy.Melee_Enemy:
+                            enemy.hit_walls(self.rooms[self.current_room].wall_list)
+                            enemy.get_move()
 
                     # Get rid of the bullet when it flies off-screen
-                    for bullet in self.bullet_list:
-                        Enemy.bullet_hit(bullet, self)
+                for bullet in self.bullet_list:
+                    Enemy.bullet_hit(bullet, self)
 
 
                 self.bullet_list.update()

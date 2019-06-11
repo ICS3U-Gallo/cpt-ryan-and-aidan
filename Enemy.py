@@ -125,6 +125,38 @@ class Melee_Enemy(arcade.Sprite):
                 self.bottom -= self.change_y
 
 
+class Boss(arcade.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.texture = arcade.load_texture("images/wormGreen.png")
+
+    def fire_pos(self, player):
+        x = random.randrange(2, 17)
+        y = random.randrange(2, 9)
+        x_diff = player.center_x - x
+        y_diff = player.center_y - y
+        angle = math.atan2(y_diff, x_diff)
+        ang_deg = round(math.degrees(angle)/45)*45
+
+        return x, y, ang_deg
+
+    def fire(self, player):
+        start_x, start_y, angle = self.fire_pos(player)
+
+        bullet = arcade.Sprite("images/fireball.png", sprite_scale)
+        bullet.center_x = start_x
+        bullet.center_y = start_y
+
+        # Angle the bullet sprite
+        bullet.angle = angle
+
+        # Taking into account the angle, calculate our change_x
+        # and change_y. Velocity is how fast the bullet travels.
+        bullet.change_x = math.cos(math.radians(angle)) * bullet_speed
+        bullet.change_y = math.sin(math.radians(angle)) * bullet_speed
+        return bullet
+
+
 class Explosion(arcade.Sprite):
     """ This class creates an explosion animation """
 
@@ -174,7 +206,10 @@ def bullet_hit(bullet, game):
         game.explosions_list.append(explosion)
         bullet.kill()
 
-
+def bullet_removal(game):
+    if game.player_sprite.center_x < 0 or game.player_sprite.center_x > screen_width or game.player_sprite.center_y < 0 or game.player_sprite.center_y > screen_height:
+        for i in range(len(game.bullet_list)):
+            game.bullet_list[0].kill()
 
 
 def outside1_setup():
@@ -197,10 +232,20 @@ def outside1_setup():
 
     return enemy_list
 
+def startcave_setup():
+    enemy_list = arcade.SpriteList()
+
+    enemy = Boss()
+    enemy.center_x = screen_width/2
+    enemy.center_y = screen_height/2
+    enemy_list.append(enemy)
+
+    return enemy_list
+
 def create():
     startroom = arcade.SpriteList()
     outside1 = outside1_setup()
-    startcave = arcade.SpriteList()
+    startcave = startcave_setup()
     outside2 = arcade.SpriteList()
     outside3 = arcade.SpriteList()
     outside4 = arcade.SpriteList()
