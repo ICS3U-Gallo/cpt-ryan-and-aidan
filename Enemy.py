@@ -61,7 +61,10 @@ class Range_Enemy(arcade.Sprite):
 
     def hit_player(self,player):
         if arcade.check_for_collision(player, self) > 0:
-            if self.hit_timer > 60:
+            if self.hit_timer > 60 and not player.stuned:
+                player.stuned = True
+                player.orgin_x = player.center_x
+                player.orgin_y= player.center_y
                 player.health -= 1
                 self.hit_timer = 0
 
@@ -109,7 +112,10 @@ class Melee_Enemy(arcade.Sprite):
 
     def hit_player(self,player):
         if arcade.check_for_collision(player, self) > 0:
-            if self.hit_timer > 60:
+            if self.hit_timer > 60 and not player.stuned:
+                player.stuned = True
+                player.orgin_x = player.center_x
+                player.orgin_y= player.center_y
                 player.health -= 1
                 self.hit_timer = 0
 
@@ -124,37 +130,70 @@ class Melee_Enemy(arcade.Sprite):
             elif self.bottom - wall.top > self.change_y:
                 self.bottom -= self.change_y
 
-
 class Boss(arcade.Sprite):
     def __init__(self):
         super().__init__()
         self.texture = arcade.load_texture("images/wormGreen.png")
+        self.isinvis = False
+        self.appear_timer = 0
+        self.invis_timer = 0
+
+        self.hp = 300
+
+    def update(self):
+        if self.hp <= 0:
+            self.kill()
+        if self.isinvis:
+            if self.invis_timer == self.invis_time:
+                self.appear()
+            self.invis_timer += 1
+        else:
+            if self.appear_timer > 120:
+                self.invis()
+            self.appear_timer += 1
+
 
     def fire_pos(self, player):
-        x = random.randrange(2, 17)
-        y = random.randrange(2, 9)
+        x = random.randrange(2, 17)*sprite_size + sprite_size/2
+        y = random.randrange(2, 9)*sprite_size + sprite_size/2
+
         x_diff = player.center_x - x
         y_diff = player.center_y - y
-        angle = math.atan2(y_diff, x_diff)
-        ang_deg = round(math.degrees(angle)/45)*45
+        ang = math.atan2(y_diff, x_diff)
+        ang_2 = round(math.degrees(ang)/45)*45
 
-        return x, y, ang_deg
+        return x, y, ang_2
 
     def fire(self, player):
         start_x, start_y, angle = self.fire_pos(player)
 
-        bullet = arcade.Sprite("images/fireball.png", sprite_scale)
+        bullet = arcade.Sprite("images/fireball.png", sprite_scale/2)
         bullet.center_x = start_x
         bullet.center_y = start_y
 
         # Angle the bullet sprite
-        bullet.angle = angle
+        bullet.angle = angle+90
 
         # Taking into account the angle, calculate our change_x
         # and change_y. Velocity is how fast the bullet travels.
         bullet.change_x = math.cos(math.radians(angle)) * bullet_speed
         bullet.change_y = math.sin(math.radians(angle)) * bullet_speed
+
         return bullet
+
+    def invis(self):
+        self.center_x = -1000
+        self.center_y = -1000
+        self.isinvis = True
+        self.invis_timer = 0
+        self.invis_time = random.randrange(10, 15)*60
+
+    def appear(self):
+        self.center_x = random.randrange(7, 11)*sprite_size
+        self.center_y = random.randrange(3, 7)*sprite_size
+        self.isinvis = False
+        self.appear_timer = 0
+
 
 
 class Explosion(arcade.Sprite):
@@ -199,7 +238,11 @@ def bullet_hit(bullet, game):
         game.explosions_list.append(explosion)
         bullet.kill()
     elif hit_player:
-        game.player_sprite.health -= 1
+        if not game.player_sprite.stuned:
+            game.player_sprite.health -= 1
+            game.player_sprite.stuned = True
+            game.player_sprite.orgin_x = game.player_sprite.center_x
+            game.player_sprite.orgin_y = game.player_sprite.center_y
         explosion = Explosion(game.explosion_texture_list)
         explosion.center_x = bullet.center_x
         explosion.center_y = bullet.center_y
@@ -207,7 +250,7 @@ def bullet_hit(bullet, game):
         bullet.kill()
 
 def bullet_removal(game):
-    if game.player_sprite.center_x < 0 or game.player_sprite.center_x > screen_width or game.player_sprite.center_y < 0 or game.player_sprite.center_y > screen_height:
+    if game.player_sprite.center_y < 0 or game.player_sprite.center_y > screen_height or game.player_sprite.center_x < 0 or game.player_sprite.center_x > screen_width:
         for i in range(len(game.bullet_list)):
             game.bullet_list[0].kill()
 

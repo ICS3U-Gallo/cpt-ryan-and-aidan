@@ -4,6 +4,7 @@ import Rooms
 import Enemy
 import RoomLogic
 import Menu
+import random
 
 sprite_scale = 0.5
 native_sprite = 128
@@ -14,14 +15,12 @@ screen_height = sprite_size * 10
 screen_title = "Comp Sci CPT - Legend of Remaked"
 
 move_speed = 10
-arrow_speed = 7
+arrow_speed = 15
 
 tex_right = 1
 tex_left = 0
 
 boomboom = 60
-
-game_start = False
 
 
 class Player(arcade.Sprite):
@@ -45,6 +44,9 @@ class Player(arcade.Sprite):
         self.health = 6
         self.arrows_count = 999
         self.dead = False
+
+        self.stuned = False
+        self.stun_counter = 0
 
         self.got_sword = True
         self.got_bow = True
@@ -102,9 +104,8 @@ class Player(arcade.Sprite):
             self.get_bow()
         if len(self.arrows_list) < 1 and self.arrows_count > 0:
             self.arrow = arcade.Sprite("images/arrow.png", scale=32/300)
-            self.arrow_getdir()
             self.arrows_list.append(self.arrow)
-            print(self.arrow.center_x, self.arrow.center_y)
+            self.arrow_getdir()
             self.arrows_count -= 1
 
     def arrow_getdir(self):
@@ -128,7 +129,10 @@ class Player(arcade.Sprite):
         hit_wall = arcade.check_for_collision_with_list(self.arrow, wall_list)
         hit_enemy = arcade.check_for_collision_with_list(self.arrow, enemy_list)
         for enemy in hit_enemy:
-            enemy.kill()
+            if type(enemy) != Enemy.Boss:
+                enemy.kill()
+            else:
+                enemy.hp -= 20
             self.coins += Enemy.coins_drop()
             self.arrows_list.remove(self.arrow)
             self.arrow.kill()
@@ -178,7 +182,10 @@ class Player(arcade.Sprite):
         if len(arcade.check_for_collision_with_list(self.sword, wall_list)) > 0:
             self.sword.kill()
         for enemy in arcade.check_for_collision_with_list(self.sword, enemy_list):
-            enemy.kill()
+            if type(enemy) != Enemy.Boss:
+                enemy.kill()
+            else:
+                enemy.hp -= 1
             self.coins += Enemy.coins_drop()
 
     def stop_melee_attack(self):
@@ -186,6 +193,16 @@ class Player(arcade.Sprite):
         self.hold_sword = False
         self.sword_hit_timer = 0
 
+    def stun(self):
+        if self.stun_counter != 5:
+            self.center_x += random.randrange(-1, 2)*5
+            self.center_y += random.randrange(-1, 2)*5
+            self.stun_counter += 1
+        else:
+            self.stuned = False
+            self.center_x = self.orgin_x
+            self.center_y = self.orgin_y
+            self.stun_counter = 0
 
 class MyGame(arcade.Window):
 
@@ -202,8 +219,11 @@ class MyGame(arcade.Window):
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
 
-        self.frame_count = 0
+        self.game_start = False
         self.menu_page = 0
+
+        self.frame_count = 0
+
         # Sprite lists
         self.current_room = 0
 
@@ -239,7 +259,7 @@ class MyGame(arcade.Window):
     def setup(self):
         """ Set up the game and initialize the variables. """
         # Set up the player
-        if game_start:
+        if self.game_start:
             self.player_sprite = Player()
             self.player_sprite.center_x = 100
             self.player_sprite.center_y = 100
@@ -273,10 +293,9 @@ class MyGame(arcade.Window):
         # This command has to happen before we start drawing
         arcade.start_render()
 
-        if game_start:
+        if self.game_start:
             if self.player_sprite.dead:
-                arcade.draw_text("You died", screen_width/2, screen_height/2, arcade.color.BLACK, 50,
-                                 align="center", anchor_x="center", anchor_y="center")
+                Menu.death_menu()
             else:
 
                 # Draw the background texture
@@ -313,7 +332,7 @@ class MyGame(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
-        if game_start:
+        if self.game_start:
             if key == arcade.key.W:
                 self.up_pressed = True
             elif key == arcade.key.S:
@@ -329,7 +348,7 @@ class MyGame(arcade.Window):
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
-        if game_start:
+        if self.game_start:
             if key == arcade.key.W:
                 self.up_pressed = False
             elif key == arcade.key.S:
@@ -344,31 +363,32 @@ class MyGame(arcade.Window):
 
     def update(self, delta_time):
         """ Movement and game logic """
-        global game_start
-        if game_start:
+        if self.game_start:
             if self.player_sprite.dead:
                 pass
             else:
 
                 self.player_sprite.change_x = 0
                 self.player_sprite.change_y = 0
-
-                if self.up_pressed and not self.down_pressed:
-                    self.player_sprite.change_y = move_speed
-                elif self.down_pressed and not self.up_pressed:
-                    self.player_sprite.change_y = -move_speed
-                if self.left_pressed and not self.right_pressed:
-                    self.player_sprite.change_x = -move_speed
-                elif self.right_pressed and not self.left_pressed:
-                    self.player_sprite.change_x = move_speed
-                if self.player_melee_attack and self.player_sprite.sword_hit_timer < 20 and self.player_sprite.got_sword:
-                    self.player_sprite.melee_attack(self.enemy_list[self.current_room], self.rooms[self.current_room].wall_list)
-                elif self.player_sprite.sword_hit_timer == 20:
-                    self.player_sprite.stop_melee_attack()
-                    self.player_melee_attack = False
-                if self.player_range_attack and not self.player_sprite.hold_sword and self.player_sprite.bow_canfire and self.player_sprite.got_bow:
-                    self.player_sprite.bow_fire()
-                    self.player_sprite.bow_canfire = False
+                if not self.player_sprite.stuned:
+                    if self.up_pressed and not self.down_pressed:
+                        self.player_sprite.change_y = move_speed
+                    elif self.down_pressed and not self.up_pressed:
+                        self.player_sprite.change_y = -move_speed
+                    if self.left_pressed and not self.right_pressed:
+                        self.player_sprite.change_x = -move_speed
+                    elif self.right_pressed and not self.left_pressed:
+                        self.player_sprite.change_x = move_speed
+                    if self.player_melee_attack and self.player_sprite.sword_hit_timer < 20 and self.player_sprite.got_sword:
+                        self.player_sprite.melee_attack(self.enemy_list[self.current_room], self.rooms[self.current_room].wall_list)
+                    elif self.player_sprite.sword_hit_timer == 20:
+                        self.player_sprite.stop_melee_attack()
+                        self.player_melee_attack = False
+                    if self.player_range_attack and not self.player_sprite.hold_sword and self.player_sprite.bow_canfire and self.player_sprite.got_bow:
+                        self.player_sprite.bow_fire()
+                        self.player_sprite.bow_canfire = False
+                else:
+                    self.player_sprite.stun()
                 if len(self.player_sprite.arrows_list) > 0:
                     self.player_sprite.arrow_hit(self.enemy_list[self.current_room], self.rooms[self.current_room].wall_list)
 
@@ -383,9 +403,13 @@ class MyGame(arcade.Window):
                 Enemy.bullet_removal(self)
                 RoomLogic.RoomLogic(self)
 
+
+
+
                 for enemy in self.enemy_list[self.current_room]:
                     if type(enemy) == Enemy.Boss:
-                        if self.frame_count % 60 == 0:
+                        enemy.update()
+                        if self.frame_count%60 == 0:
                             self.bullet_list.append(enemy.fire(self.player_sprite))
                     else:
                         enemy.get_ang(self.player_sprite.center_x, self.player_sprite.center_y)
@@ -412,18 +436,20 @@ class MyGame(arcade.Window):
 
 
                 if self.player_sprite.health == 0:
-                    self.player_sprite.kill()
                     self.player_sprite.dead = True
 
                 self.frame_count += 1
         else:
             if self.menu_page == 1:
-                game_start = True
+                self.game_start = True
                 self.setup()
 
     def on_mouse_press(self, x, y, button, modifiers):
-        if not game_start:
+        if not self.game_start:
             self.menu_page = Menu.menu_switch(self.menu_page, x, y)
+        else:
+            if self.player_sprite.dead:
+                Menu.player_dead(self, x, y)
 
 
 def main():
