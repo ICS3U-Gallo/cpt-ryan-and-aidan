@@ -291,7 +291,7 @@ class MyGame(arcade.Window):
                 self.bullet_list.draw()
                 self.explosions_list.draw()
                 self.player_list.draw()
-                if self.current_room == 6:
+                if self.current_room == 6 or self.current_room == 10:
                     RoomLogic.shopdraw(self)
                 self.player_sprite.weapon.draw()
                 self.player_sprite.arrows_list.draw()
