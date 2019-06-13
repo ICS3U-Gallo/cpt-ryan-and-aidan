@@ -22,12 +22,12 @@ class Range_Enemy(arcade.Sprite):
         self.hit_timer = 0
 
     def update(self):
+        # Move the enemy
         self.center_x += self.change_x
         self.center_y += self.change_y
         self.hit_timer += 1
 
     def get_ang(self, player_x, player_y):
-        # Get the destination location for the bullet
         dest_x = player_x
         dest_y = player_y
 
@@ -41,27 +41,15 @@ class Range_Enemy(arcade.Sprite):
         # Set the enemy to face the player.
         self.angle = math.degrees(self.ang) - 90
 
-    def fire(self):
-        bullet = arcade.Sprite("images/laserBlue01.png", sprite_scale)
-        bullet.center_x = self.center_x
-        bullet.center_y = self.center_y
-
-        # Angle the bullet sprite
-        bullet.angle = math.degrees(self.ang)
-
-        # Taking into account the angle, calculate our change_x
-        # and change_y. Velocity is how fast the bullet travels.
-        bullet.change_x = math.cos(self.ang) * bullet_speed
-        bullet.change_y = math.sin(self.ang) * bullet_speed
-        return bullet
-
     def random_move(self):
+        # Get random movement
         self.change_x = random.randrange(-1, 2)
         self.change_y = random.randrange(-1, 2)
 
     def hit_player(self,player):
+        # Check direct collision with player
         if arcade.check_for_collision(player, self) > 0:
-            if self.hit_timer > 60 and not player.stuned:
+            if self.hit_timer > 80 and not player.stuned:
                 player.stuned = True
                 player.orgin_x = player.center_x
                 player.orgin_y= player.center_y
@@ -69,6 +57,7 @@ class Range_Enemy(arcade.Sprite):
                 self.hit_timer = 0
 
     def hit_walls(self, walls):
+        # Check collision with walls
         if len(arcade.check_for_collision_with_list(self, walls)) > 0:
             self.change_x *= -1
             self.center_x += self.change_x
@@ -78,6 +67,63 @@ class Range_Enemy(arcade.Sprite):
             self.change_y *= -1
         if self.left <= 0 or self.right >= screen_width:
             self.change_x *= -1
+
+class Range_Enemy_quad(Range_Enemy):
+    def __init__(self):
+        super().__init__()
+        self.texture = arcade.load_texture("images/enemy.png", scale=sprite_scale)
+        self.change_x = 0
+        self.change_y = 0
+        self.hit_timer = 0
+        self.fire_rate = 180
+
+    def fire(self, game):
+        # Fire at 4 direction
+        for angle in range(0, 360, 90):
+            bullet = arcade.Sprite("images/laserBlue01.png", sprite_scale/math.sqrt(2))
+            bullet.center_x = self.center_x
+            bullet.center_y = self.center_y
+            bullet.change_x = math.cos(math.radians(angle)) * bullet_speed
+            bullet.change_y = math.sin(math.radians(angle)) * bullet_speed
+            game.bullet_list.append(bullet)
+
+class Range_Enemy_Aim(Range_Enemy):
+    def __init__(self):
+        super().__init__()
+        self.texture = arcade.load_texture("images/enemy.png", scale=sprite_scale)
+        self.change_x = 0
+        self.change_y = 0
+        self.hit_timer = 0
+        self.fire_rate = 150
+
+    def fire(self, game):
+        # Fire at player
+        bullet = arcade.Sprite("images/laserBlue01.png", sprite_scale)
+        bullet.center_x = self.center_x
+        bullet.center_y = self.center_y
+        bullet.angle = math.degrees(self.ang)
+        bullet.change_x = math.cos(self.ang) * bullet_speed
+        bullet.change_y = math.sin(self.ang) * bullet_speed
+        game.bullet_list.append(bullet)
+
+class Range_Enemy_Aim_2(Range_Enemy):
+    def __init__(self):
+        super().__init__()
+        self.texture = arcade.load_texture("images/enemy.png", scale=sprite_scale)
+        self.change_x = 0
+        self.change_y = 0
+        self.hit_timer = 0
+        self.fire_rate = 150
+
+    def fire(self, game):
+        for ang in range(int(math.degrees(self.ang))-30, int(math.degrees(self.ang))+31, 30):
+            bullet = arcade.Sprite("images/laserBlue01.png", sprite_scale)
+            bullet.center_x = self.center_x
+            bullet.center_y = self.center_y
+            bullet.angle = ang
+            bullet.change_x = math.cos(math.radians(ang)) * bullet_speed
+            bullet.change_y = math.sin(math.radians(ang)) * bullet_speed
+            game.bullet_list.append(bullet)
 
 
 class Melee_Enemy(arcade.Sprite):
@@ -112,7 +158,7 @@ class Melee_Enemy(arcade.Sprite):
 
     def hit_player(self,player):
         if arcade.check_for_collision(player, self) > 0:
-            if self.hit_timer > 60 and not player.stuned:
+            if self.hit_timer > 80 and not player.stuned:
                 player.stuned = True
                 player.orgin_x = player.center_x
                 player.orgin_y= player.center_y
@@ -134,28 +180,40 @@ class Boss(arcade.Sprite):
     def __init__(self):
         super().__init__()
         self.texture = arcade.load_texture("images/wormGreen.png")
+
         self.isinvis = False
         self.appear_timer = 0
         self.invis_timer = 0
 
-        self.hp = 300
+        self.hp = 6
+        self.washit = False
 
-    def update(self):
-        if self.hp <= 0:
-            self.kill()
+    def update(self, game):
+        self.check_dead(game)
         if self.isinvis:
             if self.invis_timer == self.invis_time:
                 self.appear()
             self.invis_timer += 1
         else:
-            if self.appear_timer > 120:
-                self.invis()
+            if self.appear_timer > 90:
+                self.invis(game)
             self.appear_timer += 1
+
+        if self.washit and not self.isinvis:
+            self.center_x += random.randrange(-1, 2)*5
+            self.center_y += random.randrange(-1, 2)*5
+
 
 
     def fire_pos(self, player):
-        x = random.randrange(2, 17)*sprite_size + sprite_size/2
-        y = random.randrange(2, 9)*sprite_size + sprite_size/2
+        if random.randrange(2) == 0:
+            x = random.randrange(1, 7)*sprite_size + sprite_size/2
+        else:
+            x = random.randrange(11, 17)*sprite_size + sprite_size/2
+        if random.randrange(2) == 0:
+            y = random.randrange(1, 3)*sprite_size + sprite_size/2
+        else:
+            y = random.randrange(7, 9)*sprite_size + sprite_size/2
 
         x_diff = player.center_x - x
         y_diff = player.center_y - y
@@ -170,29 +228,54 @@ class Boss(arcade.Sprite):
         bullet = arcade.Sprite("images/fireball.png", sprite_scale/2)
         bullet.center_x = start_x
         bullet.center_y = start_y
-
-        # Angle the bullet sprite
         bullet.angle = angle+90
-
-        # Taking into account the angle, calculate our change_x
-        # and change_y. Velocity is how fast the bullet travels.
         bullet.change_x = math.cos(math.radians(angle)) * bullet_speed
         bullet.change_y = math.sin(math.radians(angle)) * bullet_speed
 
         return bullet
 
-    def invis(self):
+    def fire_alldir(self, game):
+        for angle in range(0, 360, 45):
+            bullet = arcade.Sprite("images/fireball.png", sprite_scale/math.sqrt(2))
+            bullet.center_x = self.center_x
+            bullet.center_y = self.center_y
+            bullet.angle = angle + 90
+            bullet.change_x = math.cos(math.radians(angle)) * bullet_speed
+            bullet.change_y = math.sin(math.radians(angle)) * bullet_speed
+            game.bullet_list.append(bullet)
+
+    def invis(self, game):
+        self.fire_alldir(game)
         self.center_x = -1000
         self.center_y = -1000
         self.isinvis = True
         self.invis_timer = 0
-        self.invis_time = random.randrange(10, 15)*60
+        self.invis_time = random.randrange(5, 8)*60
 
     def appear(self):
         self.center_x = random.randrange(7, 11)*sprite_size
         self.center_y = random.randrange(3, 7)*sprite_size
         self.isinvis = False
         self.appear_timer = 0
+        self.washit = False
+
+    def got_hit(self):
+        if not self.washit:
+            self.washit = True
+            self.hp -= 1
+            self.appear_timer = 60
+
+    def check_dead(self, game):
+        if self.hp <= 0:
+            for i in range(-1, 2):
+                for j in range(-1, 2):
+                    explosion = Explosion(game.explosion_texture_list)
+                    explosion.texture = arcade.load_texture("images/explosion/explosion0000.png", scale=3)
+                    explosion.center_x = self.center_x+i*32
+                    explosion.center_y = self.center_y+j*32
+                    game.explosions_list.append(explosion)
+            self.kill()
+
 
 
 
@@ -253,22 +336,25 @@ def bullet_removal(game):
     if game.player_sprite.center_y < 0 or game.player_sprite.center_y > screen_height or game.player_sprite.center_x < 0 or game.player_sprite.center_x > screen_width:
         for i in range(len(game.bullet_list)):
             game.bullet_list[0].kill()
-
+        for i in range(len(game.explosions_list)):
+            game.explosions_list[0].kill()
+        for arrow in game.player_sprite.arrows_list:
+            arrow.kill()
 
 def outside1_setup():
     enemy_list = arcade.SpriteList()
 
-    enemy = Range_Enemy()
+    enemy = Melee_Enemy()
     enemy.center_x = 160
     enemy.center_y = screen_height - 160
     enemy_list.append(enemy)
 
-    enemy = Range_Enemy()
+    enemy = Range_Enemy_quad()
     enemy.center_x = screen_width - 160
     enemy.center_y = 160
     enemy_list.append(enemy)
 
-    enemy = Melee_Enemy()
+    enemy = Range_Enemy_quad()
     enemy.center_x = screen_width - 160
     enemy.center_y = screen_height - 160
     enemy_list.append(enemy)
@@ -285,14 +371,39 @@ def startcave_setup():
 
     return enemy_list
 
+def outside2_setup():
+    enemy_list = arcade.SpriteList()
+
+    enemy = Range_Enemy_Aim()
+    enemy.center_x = 160
+    enemy.center_y = screen_height - 160
+    enemy_list.append(enemy)
+
+    enemy = Range_Enemy_Aim()
+    enemy.center_x = screen_width - 160
+    enemy.center_y = 160
+    enemy_list.append(enemy)
+
+    enemy = Range_Enemy_Aim_2()
+    enemy.center_x = screen_width - 160
+    enemy.center_y = screen_height - 160
+    enemy_list.append(enemy)
+
+    return enemy_list
+
+
 def create():
     startroom = arcade.SpriteList()
     outside1 = outside1_setup()
     startcave = startcave_setup()
-    outside2 = arcade.SpriteList()
+    outside2 = outside2_setup()
     outside3 = arcade.SpriteList()
     outside4 = arcade.SpriteList()
     cave2shop = arcade.SpriteList()
+    outside5 = arcade.SpriteList()
+    river1 = arcade.SpriteList()
+    river2 = arcade.SpriteList()
+    cave3shop = arcade.SpriteList()
 
-    enemy_list = [startroom, outside1, startcave, outside2, outside3, outside4, cave2shop]
+    enemy_list = [startroom, outside1, startcave, outside2, outside3, outside4, cave2shop, outside5, river1, river2, cave3shop]
     return enemy_list

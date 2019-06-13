@@ -40,6 +40,7 @@ class Player(arcade.Sprite):
         # 0 = up, 1 = right, 2 = down, 3 = left
         self.set_texture(tex_right)
 
+        # Set up Player stats
         self.coins = 999
         self.health = 6
         self.arrows_count = 999
@@ -61,7 +62,7 @@ class Player(arcade.Sprite):
 
     def update(self):
 
-        # Figure out if we should face left or right
+        # Figure out player facing direction
         if self.change_y < 0:
             self.face_dir = 2
         if self.change_y > 0:
@@ -72,18 +73,22 @@ class Player(arcade.Sprite):
         if self.change_x > 0:
             self.face_dir = 1
             self.set_texture(tex_right)
+
+        # Update sword/bow
         if self.hold_sword:
             self.sword_hit_timer += 1
         elif self.hold_bow:
             self.bow_pos()
 
     def get_bow(self):
+        # Create the bow
         self.bow = arcade.Sprite("images/bow.png", scale=64/256)
         self.weapon.append(self.bow)
         self.hold_bow = True
         self.bow_pos()
 
     def bow_pos(self):
+        # Update bow position and angle base on player
         self.bow.center_x = self.center_x
         self.bow.center_y = self.center_y
         if self.face_dir == 3:
@@ -100,6 +105,7 @@ class Player(arcade.Sprite):
             self.bow.angle = 315
 
     def bow_fire(self):
+        # Fire an arrow
         if not self.hold_bow:
             self.get_bow()
         if len(self.arrows_list) < 1 and self.arrows_count > 0:
@@ -109,6 +115,7 @@ class Player(arcade.Sprite):
             self.arrows_count -= 1
 
     def arrow_getdir(self):
+        # Get arrow direction and speed
         self.arrow.center_x = self.bow.center_x
         self.arrow.center_y = self.bow.center_y
         if self.face_dir == 3:
@@ -126,14 +133,15 @@ class Player(arcade.Sprite):
 
 
     def arrow_hit(self, enemy_list, wall_list):
+        # Check collision between arrow and objects
         hit_wall = arcade.check_for_collision_with_list(self.arrow, wall_list)
         hit_enemy = arcade.check_for_collision_with_list(self.arrow, enemy_list)
         for enemy in hit_enemy:
             if type(enemy) != Enemy.Boss:
                 enemy.kill()
+                self.coins += Enemy.coins_drop()
             else:
-                enemy.hp -= 20
-            self.coins += Enemy.coins_drop()
+                enemy.got_hit()
             self.arrows_list.remove(self.arrow)
             self.arrow.kill()
         if len(hit_wall) > 0:
@@ -144,10 +152,12 @@ class Player(arcade.Sprite):
             self.arrow.kill()
 
     def stop_hold_bow(self):
+        # Remove the bow
         self.bow.kill()
         self.hold_bow = False
 
     def get_sword(self):
+        # Create the sword
         if self.hold_bow:
             self.stop_hold_bow()
         self.sword = arcade.Sprite("images/sword.png", scale=64 / 1000)
@@ -156,6 +166,7 @@ class Player(arcade.Sprite):
 
 
     def melee_attack(self, enemy_list, wall_list):
+        # Logic for melee attack
         if not self.hold_sword:
             self.get_sword()
         self.sword_pos()
@@ -163,6 +174,7 @@ class Player(arcade.Sprite):
 
 
     def sword_pos(self):
+        # Update sword position base on player
         self.sword.center_x = self.center_x
         self.sword.center_y = self.center_y
         if self.face_dir == 3:
@@ -179,22 +191,30 @@ class Player(arcade.Sprite):
             self.sword.angle = 0
 
     def sword_hit(self, wall_list, enemy_list):
+        # Check sword collision with wall and enemy
         if len(arcade.check_for_collision_with_list(self.sword, wall_list)) > 0:
             self.sword.kill()
         for enemy in arcade.check_for_collision_with_list(self.sword, enemy_list):
             if type(enemy) != Enemy.Boss:
                 enemy.kill()
+                self.coins += Enemy.coins_drop()
             else:
-                enemy.hp -= 1
-            self.coins += Enemy.coins_drop()
+                enemy.got_hit()
+
 
     def stop_melee_attack(self):
+        # Remove the sword
         self.sword.kill()
         self.hold_sword = False
         self.sword_hit_timer = 0
 
     def stun(self):
-        if self.stun_counter != 5:
+        # Player get stunned
+        if self.stun_counter <= 10:
+            if self.hold_sword:
+                self.stop_melee_attack()
+            if self.hold_bow:
+                self.stop_hold_bow()
             self.center_x += random.randrange(-1, 2)*5
             self.center_y += random.randrange(-1, 2)*5
             self.stun_counter += 1
@@ -220,6 +240,7 @@ class MyGame(arcade.Window):
         os.chdir(file_path)
 
         self.game_start = False
+        self.paused = False
         self.menu_page = 0
 
         self.frame_count = 0
@@ -271,6 +292,7 @@ class MyGame(arcade.Window):
             self.itemtwo = False
             self.itemthree = False
 
+            # List of Enemy
             self.enemy_list = Enemy.create()
 
             # Our list of rooms
@@ -293,7 +315,7 @@ class MyGame(arcade.Window):
         # This command has to happen before we start drawing
         arcade.start_render()
 
-        if self.game_start:
+        if self.game_start and not self.paused:
             if self.player_sprite.dead:
                 Menu.death_menu()
             else:
@@ -305,19 +327,20 @@ class MyGame(arcade.Window):
                 # Draw all the walls in this room
                 self.rooms[self.current_room].wall_list.draw()
 
-                # If you have coins or monsters, then copy and modify the line
-                # above for each list.
+                # Draw enemies, bullets, explosions, and player
                 self.enemy_list[self.current_room].draw()
                 self.bullet_list.draw()
                 self.explosions_list.draw()
                 self.player_list.draw()
-                if self.current_room == 6:
+
+                # Draw the shop
+                if self.current_room == 6 or self.current_room == 10:
                     RoomLogic.shopdraw(self)
                 self.player_sprite.weapon.draw()
                 self.player_sprite.arrows_list.draw()
 
 
-
+                # Draw Player health and coins/arrows count
                 for i in range(self.player_sprite.health):
                     arcade.draw_xywh_rectangle_filled(health_x, health_y, 20, 20, arcade.color.BLUE)
                     health_x += 50
@@ -333,22 +356,26 @@ class MyGame(arcade.Window):
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
         if self.game_start:
-            if key == arcade.key.W:
-                self.up_pressed = True
-            elif key == arcade.key.S:
-                self.down_pressed = True
-            elif key == arcade.key.A:
-                self.left_pressed = True
-            elif key == arcade.key.D:
-                self.right_pressed = True
-            if key == arcade.key.J:
-                self.player_melee_attack = True
-            elif key == arcade.key.K:
-                self.player_range_attack = True
+            if key == arcade.key.ESCAPE:
+                Menu.pause_game(self)
+            if not self.paused:
+                if key == arcade.key.W:
+                    self.up_pressed = True
+                elif key == arcade.key.S:
+                    self.down_pressed = True
+                elif key == arcade.key.A:
+                    self.left_pressed = True
+                elif key == arcade.key.D:
+                    self.right_pressed = True
+                if key == arcade.key.J:
+                    self.player_melee_attack = True
+                elif key == arcade.key.K:
+                    self.player_range_attack = True
+
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
-        if self.game_start:
+        if self.game_start and not self.paused:
             if key == arcade.key.W:
                 self.up_pressed = False
             elif key == arcade.key.S:
@@ -363,11 +390,9 @@ class MyGame(arcade.Window):
 
     def update(self, delta_time):
         """ Movement and game logic """
-        if self.game_start:
-            if self.player_sprite.dead:
-                pass
-            else:
-
+        if self.game_start and not self.paused:
+            if not self.player_sprite.dead:
+                # Player Control(Movement and attack)
                 self.player_sprite.change_x = 0
                 self.player_sprite.change_y = 0
                 if not self.player_sprite.stuned:
@@ -388,64 +413,65 @@ class MyGame(arcade.Window):
                         self.player_sprite.bow_fire()
                         self.player_sprite.bow_canfire = False
                 else:
+                    # Get stunned if player gets hit
                     self.player_sprite.stun()
                 if len(self.player_sprite.arrows_list) > 0:
                     self.player_sprite.arrow_hit(self.enemy_list[self.current_room], self.rooms[self.current_room].wall_list)
 
 
-                # Call update on all sprites (The sprites don't do much in this
-                # example though.)
+                # Call update on player
                 self.physics_engine.update()
                 self.player_list.update()
 
-                # Do some logic here to figure out what room we are in, and if we need to go
-                # to a different room.
+                # Do some logic here to figure out what room we are in, and if we need to go to a different room.
                 Enemy.bullet_removal(self)
                 RoomLogic.RoomLogic(self)
 
 
 
-
+                # Update the enemy(move, fire, collision)
                 for enemy in self.enemy_list[self.current_room]:
                     if type(enemy) == Enemy.Boss:
-                        enemy.update()
-                        if self.frame_count%60 == 0:
+                        enemy.update(self)
+                        if self.frame_count%(enemy.hp*10+20) == 0:
                             self.bullet_list.append(enemy.fire(self.player_sprite))
                     else:
                         enemy.get_ang(self.player_sprite.center_x, self.player_sprite.center_y)
                         enemy.update()
                         enemy.hit_player(self.player_sprite)
-                        if type(enemy) == Enemy.Range_Enemy:
-                            enemy.hit_walls(self.rooms[self.current_room].wall_list)
-                            if self.frame_count % 180 == 0:
-                                self.bullet_list.append(enemy.fire())
+                        enemy.hit_walls(self.rooms[self.current_room].wall_list)
+                        if isinstance(enemy, Enemy.Range_Enemy):
+                            if self.frame_count % enemy.fire_rate == 0:
+                                enemy.fire(self)
                             if self.frame_count % 30 == 0:
                                 enemy.random_move()
                         elif type(enemy) == Enemy.Melee_Enemy:
-                            enemy.hit_walls(self.rooms[self.current_room].wall_list)
                             enemy.get_move()
 
-                    # Get rid of the bullet when it flies off-screen
+                # Check bullet collision with object
                 for bullet in self.bullet_list:
                     Enemy.bullet_hit(bullet, self)
 
-
+                # Update the projectile
                 self.bullet_list.update()
                 self.explosions_list.update()
                 self.player_sprite.arrows_list.update()
 
-
+                # player death
                 if self.player_sprite.health == 0:
                     self.player_sprite.dead = True
 
                 self.frame_count += 1
         else:
+            # if they click play game, start the game
             if self.menu_page == 1:
                 self.game_start = True
                 self.setup()
 
+
     def on_mouse_press(self, x, y, button, modifiers):
-        if not self.game_start:
+        # Mouse input to control menu
+        if not self.game_start or self.paused:
             self.menu_page = Menu.menu_switch(self.menu_page, x, y)
         else:
             if self.player_sprite.dead:
