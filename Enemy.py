@@ -210,6 +210,7 @@ def create():
     river2 = arcade.SpriteList()
     cave3shop = arcade.SpriteList()
 
-    enemy_list = [startroom, outside1, startcave, outside2, outside3, outside4, cave2shop, outside5, river1, river2, cave3shop]
+    enemy_list = [startroom, outside1, startcave, outside2, outside3, outside4, cave2shop, outside5, river1,
+                  river2, cave3shop]
     return enemy_list
 
