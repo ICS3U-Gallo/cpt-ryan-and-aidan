@@ -46,8 +46,8 @@ class Player(arcade.Sprite):
         self.arrows_count = 0
         self.dead = False
 
-        self.got_sword = True
-        self.got_bow = True
+        self.got_sword = False
+        self.got_bow = False
         self.weapon = arcade.SpriteList()
         self.arrows_list = arcade.SpriteList()
 
@@ -291,6 +291,8 @@ class MyGame(arcade.Window):
                 self.bullet_list.draw()
                 self.explosions_list.draw()
                 self.player_list.draw()
+                if self.current_room is 2 and self.player_sprite.got_sword is False and self.player_sprite.got_bow is False:
+                    RoomLogic.start_pickup_draw(self)
                 if self.current_room == 6 or self.current_room == 10:
                     RoomLogic.shopdraw(self)
                 self.player_sprite.weapon.draw()

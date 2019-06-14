@@ -40,11 +40,6 @@ def startroom_setup():
                 wall.bottom = y
                 room.wall_list.append(wall)
 
-    wall = arcade.Sprite("images/boxCrate_double.png", sprite_scale)
-    wall.left = 7 * sprite_size
-    wall.bottom = 5 * sprite_size
-    room.wall_list.append(wall)
-
     room.background = arcade.load_texture("images/background_2.jpg")
 
     return room
@@ -284,7 +279,7 @@ def river2_setup():
 
     for x in (0, screen_width - sprite_size):
         for y in range(0, screen_height, sprite_size):
-            if (y != sprite_size * 4 and y != sprite_size * 5) or y == 0:
+            if (y != sprite_size * 4 and y != sprite_size * 5) or x == 0:
                 wall = arcade.Sprite("images/boxCrate_double.png", sprite_scale)
                 wall.left = x
                 wall.bottom = y
@@ -369,7 +364,7 @@ def cave5boss_setup():
 
     for x in (0, screen_width - sprite_size):
         for y in range(0, screen_height, sprite_size):
-            if (y != sprite_size * 4 and y != sprite_size * 5):
+            if (y != sprite_size * 4 and y != sprite_size * 5) and x == 0:
                 wall = arcade.Sprite("images/boxCrate_double.png", sprite_scale)
                 wall.left = x
                 wall.bottom = y

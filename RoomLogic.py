@@ -16,6 +16,26 @@ health = 6
 
 boomboom = 60
 
+def start_pickup_draw(player):
+    sword = arcade.Sprite("images/sword.png", 64/1000)
+    bow = arcade.Sprite("images/bow.png", sprite_scale / 2)
+
+    sword.center_x = 500
+    sword.center_y = 420
+    bow.center_x = 600
+    bow.center_y = 420
+
+    if player.player_sprite.got_sword is False:
+        sword.draw()
+    if player.player_sprite.got_bow is False:
+        bow.draw()
+
+def start_pickup_logic(player):
+
+    if player.player_sprite.center_x in range(490, 510) and player.player_sprite.center_y in range(410, 430):
+        player.player_sprite.got_sword = True
+    if player.player_sprite.center_x in range(590, 610) and player.player_sprite.center_y in range(410, 430):
+        player.player_sprite.got_bow = True
 
 
 def shopdraw(player):
@@ -64,6 +84,7 @@ def shoplogic(player):
 
 def RoomLogic(player):
     if player.current_room == 0:
+        start_pickup_logic(player)
         if player.player_sprite.center_x > screen_width:
             player.current_room = 1
             player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
@@ -149,6 +170,11 @@ def RoomLogic(player):
             player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
                                                                player.rooms[player.current_room].wall_list)
             player.player_sprite.center_x = screen_width
+        elif player.player_sprite.center_y > screen_height:
+            player.current_room = 11
+            player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
+                                                               player.rooms[player.current_room].wall_list)
+            player.player_sprite.center_y = 0
     elif player.current_room == 6:
         shoplogic(player)
         if player.player_sprite.center_y < 0:
@@ -160,7 +186,7 @@ def RoomLogic(player):
             player.itemtwo = False
             player.itemthree = False
     elif player.current_room == 7:
-        if player.player_sprite.center_y > screen_height:
+        if player.player_sprite.center_x in range(350, 420) and player.player_sprite.center_y > screen_height:
             player.current_room = 10
             player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
                                                                player.rooms[player.current_room].wall_list)
@@ -170,18 +196,43 @@ def RoomLogic(player):
             player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
                                                                player.rooms[player.current_room].wall_list)
             player.player_sprite.center_x = screen_width
+        elif player.player_sprite.center_x in range(990, 1058) and player.player_sprite.center_y > screen_height:
+            player.current_room = 5
+            player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
+                                                               player.rooms[player.current_room].wall_list)
+            player.player_sprite.center_y = 0
+        elif player.player_sprite.center_x > screen_width:
+            player.current_room = 0
+            player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
+                                                               player.rooms[player.current_room].wall_list)
+            player.player_sprite.center_x = 0
     elif player.current_room == 8:
         if player.player_sprite.center_y > screen_height:
             player.current_room = 9
             player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
                                                                player.rooms[player.current_room].wall_list)
             player.player_sprite.center_y = 0
+        elif player.player_sprite.center_x < 0:
+            player.current_room = 12
+            player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
+                                                               player.rooms[player.current_room].wall_list)
+            player.player_sprite.center_x = screen_width
+        elif player.player_sprite.center_x > screen_width:
+            player.current_room = 7
+            player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
+                                                               player.rooms[player.current_room].wall_list)
+            player.player_sprite.center_x = 0
     elif player.current_room == 9:
-        if player.player_sprite.center_y > screen_height:
+        if player.player_sprite.center_y < 0:
+            player.current_room = 8
+            player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
+                                                               player.rooms[player.current_room].wall_list)
+            player.player_sprite.center_y = screen_height
+        elif player.player_sprite.center_x > screen_width:
             player.current_room = 5
             player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
                                                                player.rooms[player.current_room].wall_list)
-            player.player_sprite.center_y = 0
+            player.player_sprite.center_x = 0
     elif player.current_room == 10:
         shoplogic(player)
         if player.player_sprite.center_y < 0:
@@ -192,3 +243,19 @@ def RoomLogic(player):
             player.itemone = False
             player.itemtwo = False
             player.itemthree = False
+    elif player.current_room == 11:
+        shoplogic(player)
+        if player.player_sprite.center_y < 0:
+            player.current_room = 5
+            player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
+                                                               player.rooms[player.current_room].wall_list)
+            player.player_sprite.center_y = screen_height
+            player.itemone = False
+            player.itemtwo = False
+            player.itemthree = False
+    elif player.current_room == 12:
+        if player.player_sprite.center_x > screen_width:
+            player.current_room = 8
+            player.physics_engine = arcade.PhysicsEngineSimple(player.player_sprite,
+                                                               player.rooms[player.current_room].wall_list)
+            player.player_sprite.center_x = 0
