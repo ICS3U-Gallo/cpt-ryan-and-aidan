@@ -18,22 +18,30 @@ boomboom = 60
 
 
 def start_pickup_draw(player):
+    # Draws the sprites for the start items
     sword = arcade.Sprite("images/sword.png", 64/1000)
     bow = arcade.Sprite("images/bow.png", sprite_scale / 2)
+    old_guy = arcade.Sprite("images/old man.jpg", sprite_scale / 2)
 
     sword.center_x = 500
     sword.center_y = 420
     bow.center_x = 600
     bow.center_y = 420
+    old_guy.center_x = 550
+    old_guy.center_y = 525
 
     if player.player_sprite.got_sword is False:
         sword.draw()
     if player.player_sprite.got_bow is False:
         bow.draw()
+        arcade.draw_text("It's dangerous to go alone \nTake these",
+                         280, 280, arcade.color.WHITE, 55)
+    old_guy.draw()
+
 
 
 def start_pickup_logic(player):
-
+    # Does logic for the weapons
     if (player.player_sprite.center_x in range(480, 620) and
        player.player_sprite.center_y in range(410, 430)):
         player.player_sprite.got_sword = True
@@ -41,10 +49,11 @@ def start_pickup_logic(player):
 
 
 def shopdraw(player):
-
+    # Draws the shop sprites
     heart_boost = arcade.Sprite("images/heart.png", sprite_scale)
     arrow_boost = arcade.Sprite("images/arrow.png", sprite_scale / 2)
     charity = arcade.Sprite("images/trashcan.png", sprite_scale)
+    old_guy = arcade.Sprite("images/old man.jpg", sprite_scale / 2)
 
     heart_boost.center_x = 300
     heart_boost.center_y = 410
@@ -52,19 +61,24 @@ def shopdraw(player):
     arrow_boost.center_y = 410
     charity.center_x = 870
     charity.center_y = 410
+    old_guy.center_x = 550
+    old_guy.center_y = 525
 
     if player.itemone is False:
         heart_boost.draw()
     if player.itemtwo is False:
         arrow_boost.draw()
     charity.draw()
+    old_guy.draw()
     arcade.draw_text("10", 270, 310, arcade.color.WHITE, 55)
     arcade.draw_text("20", 540, 310, arcade.color.WHITE, 55)
     arcade.draw_text(" 1", 840, 310, arcade.color.WHITE, 55)
+    arcade.draw_text("This is a shop", 320, 180,
+                     arcade.color.WHITE, 55)
 
 
 def shoplogic(player):
-
+    #Does the logic for the shop
     if (player.player_sprite.center_x in range(269, 331) and
        player.player_sprite.center_y in range(389, 431)):
         while player.itemone is False:
@@ -93,6 +107,7 @@ def shoplogic(player):
 
 
 def RoomLogic(player):
+    # Does logic for all rooms
     if player.current_room == 0:
         if player.player_sprite.center_x > screen_width:
             player.current_room = 1
@@ -422,3 +437,22 @@ def RoomLogic(player):
                                                                 current_room].
                                                                wall_list)
             player.player_sprite.center_x = 0
+        elif player.player_sprite.center_x < 0:
+            player.current_room = 13
+            player.physics_engine = arcade.PhysicsEngineSimple(player.
+                                                               player_sprite,
+                                                               player.
+                                                               rooms
+                                                               [player.
+                                                                current_room].
+                                                               wall_list)
+            player.player_sprite.center_x = screen_width
+    elif player.current_room == 13:
+        if player.player_sprite.center_x > screen_width:
+            player.player_sprite.center_x = screen_width
+        if player.player_sprite.center_x < 0:
+            player.player_sprite.center_x = 0
+        if player.player_sprite.center_y > screen_height:
+            player.player_sprite.center_y = screen_height
+        if player.player_sprite.center_y < 0:
+            player.player_sprite.center_y = 0

@@ -1,6 +1,7 @@
 import arcade
 import math
 import random
+import Menu
 
 sprite_scale = 0.5
 native_sprite = 128
@@ -15,7 +16,7 @@ bullet_speed = 5
 class Range_Enemy(arcade.Sprite):
     def __init__(self):
         super().__init__()
-        self.texture = arcade.load_texture("images/enemy.png",
+        self.texture = arcade.load_texture("images/enemy.gif",
                                            scale=sprite_scale)
         self.change_x = 0
         self.change_y = 0
@@ -72,7 +73,7 @@ class Range_Enemy(arcade.Sprite):
 class Range_Enemy_cross(Range_Enemy):
     def __init__(self):
         super().__init__()
-        self.texture = arcade.load_texture("images/enemy.png",
+        self.texture = arcade.load_texture("images/enemy.gif",
                                            scale=sprite_scale)
         self.change_x = 0
         self.change_y = 0
@@ -94,7 +95,7 @@ class Range_Enemy_cross(Range_Enemy):
 class Range_Enemy_X(Range_Enemy):
     def __init__(self):
         super().__init__()
-        self.texture = arcade.load_texture("images/enemy.png",
+        self.texture = arcade.load_texture("images/enemy.gif",
                                            scale=sprite_scale)
         self.change_x = 0
         self.change_y = 0
@@ -116,7 +117,7 @@ class Range_Enemy_X(Range_Enemy):
 class Range_Enemy_Aim(Range_Enemy):
     def __init__(self):
         super().__init__()
-        self.texture = arcade.load_texture("images/enemy.png",
+        self.texture = arcade.load_texture("images/enemy.gif",
                                            scale=sprite_scale)
         self.change_x = 0
         self.change_y = 0
@@ -137,7 +138,7 @@ class Range_Enemy_Aim(Range_Enemy):
 class Range_Enemy_Aim_2(Range_Enemy):
     def __init__(self):
         super().__init__()
-        self.texture = arcade.load_texture("images/enemy.png",
+        self.texture = arcade.load_texture("images/enemy.gif",
                                            scale=sprite_scale)
         self.change_x = 0
         self.change_y = 0
@@ -160,7 +161,7 @@ class Range_Enemy_Aim_2(Range_Enemy):
 class Melee_Enemy(arcade.Sprite):
     def __init__(self):
         super().__init__()
-        self.texture = arcade.load_texture("images/enemy.png",
+        self.texture = arcade.load_texture("images/enemy.gif",
                                            scale=sprite_scale)
         self.change_x = 0
         self.change_y = 0
@@ -318,7 +319,6 @@ class Boss(arcade.Sprite):
             self.kill()
 
 
-
 class Explosion(arcade.Sprite):
     """ This class creates an explosion animation """
 
@@ -392,6 +392,7 @@ def bullet_removal(game):
 
 
 def random_enemy_type():
+    # Make enemies random
     enemy_type = random.randrange(5)
     if enemy_type == 0:
         enemy = Melee_Enemy()
@@ -410,22 +411,22 @@ def outside1_setup():
     # Create enemy in room outside1
     enemy_list = arcade.SpriteList()
 
-    enemy = Range_Enemy_X()
+    enemy = random_enemy_type()
     enemy.center_x = 160
     enemy.center_y = 160
     enemy_list.append(enemy)
 
-    enemy = Range_Enemy_cross()
+    enemy = random_enemy_type()
     enemy.center_x = 160
     enemy.center_y = screen_height - 160
     enemy_list.append(enemy)
 
-    enemy = Range_Enemy_cross()
+    enemy = random_enemy_type()
     enemy.center_x = screen_width - 160
     enemy.center_y = 160
     enemy_list.append(enemy)
 
-    enemy = Range_Enemy_X()
+    enemy = random_enemy_type()
     enemy.center_x = screen_width - 160
     enemy.center_y = screen_height - 160
     enemy_list.append(enemy)
@@ -448,22 +449,22 @@ def outside2_setup():
     # Create Enemy in room outside2
     enemy_list = arcade.SpriteList()
 
-    enemy = Range_Enemy_Aim()
+    enemy = random_enemy_type()
     enemy.center_x = 160
     enemy.center_y = 160
     enemy_list.append(enemy)
 
-    enemy = Range_Enemy_Aim()
+    enemy = random_enemy_type()
     enemy.center_x = 160
     enemy.center_y = screen_height - 160
     enemy_list.append(enemy)
 
-    enemy = Range_Enemy_Aim()
+    enemy = random_enemy_type()
     enemy.center_x = screen_width - 160
     enemy.center_y = 160
     enemy_list.append(enemy)
 
-    enemy = Range_Enemy_Aim_2()
+    enemy = random_enemy_type()
     enemy.center_x = screen_width - 160
     enemy.center_y = screen_height - 160
     enemy_list.append(enemy)
@@ -621,8 +622,9 @@ def create():
     cave3shop = arcade.SpriteList()
     cave4shop = arcade.SpriteList()
     cave5boss = cave5boss_setup()
+    winroom = arcade.SpriteList()
 
     enemy_list = [startroom, outside1, startcave, outside2, outside3, outside4,
                   cave2shop, outside5, river1, river2, cave3shop,
-                  cave4shop, cave5boss]
+                  cave4shop, cave5boss, winroom]
     return enemy_list

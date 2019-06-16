@@ -14,7 +14,7 @@ screen_width = sprite_size * 18
 screen_height = sprite_size * 10
 screen_title = "Comp Sci CPT - Legend of Remaked"
 
-move_speed = 10
+move_speed = 5
 arrow_speed = 15
 
 tex_right = 1
@@ -23,6 +23,7 @@ tex_left = 0
 boomboom = 60
 
 shop_list = [6, 10, 11]
+
 
 
 class Player(arcade.Sprite):
@@ -44,10 +45,11 @@ class Player(arcade.Sprite):
         self.set_texture(tex_right)
 
         # Set up Player stats
-        self.coins = 999
+        self.coins = 0
         self.health = 6
-        self.arrows_count = 999
+        self.arrows_count = 0
         self.dead = False
+        self.win = False
 
         self.stuned = False
         self.stun_counter = 0
@@ -236,9 +238,7 @@ class MyGame(arcade.Window):
         super().__init__(width, height, title)
 
         # Set the working directory (where we expect to find files) to the same
-        # directory this .py file is in. You can leave this out of your own
-        # code, but it is needed to easily run the examples using "python -m"
-        # as mentioned at the top of this program.
+        # directory this .py file is in.
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
 
@@ -324,6 +324,8 @@ class MyGame(arcade.Window):
         if self.game_start and not self.paused:
             if self.player_sprite.dead:
                 Menu.death_menu()
+            elif self.current_room == 13:
+                Menu.win_screen()
             else:
 
                 # Draw the background texture

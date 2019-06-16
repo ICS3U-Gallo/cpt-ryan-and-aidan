@@ -60,6 +60,8 @@ def help_menu_2():
                      align="center", anchor_x="center", anchor_y="center")
     arcade.draw_text("Gameplay", 300, 490, arcade.color.BLACK, 40)
     arcade.draw_text("Player statistic on top part of the screen \n"
+                     "Player starts out with no weapon \n"
+                     "Go to top left of start to get weapons \n"
                      "Kill Enemy to get coins \n"
                      "Walk over item to buy them at shop"
                      "\n\nDefeat the Boss to win",
@@ -87,21 +89,17 @@ def death_menu():
     arcade.draw_xywh_rectangle_outline(screen_width/2-175, screen_height/2-150,
                                        350, 75, arcade.color.BLACK, 5)
 
-def win_screen():
-    arcade.draw_text("You Win!", screen_width / 2, screen_height / 2 + 100,
-                     arcade.color.BLACK, 50,
-                     align="center", anchor_x="center", anchor_y="center")
-    arcade.draw_xywh_rectangle_outline(screen_width / 2 - 150,
-                                       screen_height / 2 - 25, 300, 75,
-                                       arcade.color.BLACK, 5)
-    arcade.draw_text("Play again?", screen_width / 2,
-                     screen_height / 2 + 13, arcade.color.BLACK, 30,
-                     align="center", anchor_x="center", anchor_y="center")
 
 def pause_menu():
     # Draw pause manu
     arcade.draw_text("Paused", screen_width/2,
                      screen_height/2, arcade.color.BLACK, 50,
+                     align="center", anchor_x="center", anchor_y="center")
+
+
+def win_screen():
+    arcade.draw_text("You Win!", screen_width / 2, screen_height / 2 + 100,
+                     arcade.color.BLACK, 50,
                      align="center", anchor_x="center", anchor_y="center")
 
 
@@ -115,6 +113,8 @@ def menu(page):
         help_menu_2()
     elif page == 4:
         pause_menu()
+    elif page == 5:
+        win_screen()
 
 
 def menu_switch(page, x, y):

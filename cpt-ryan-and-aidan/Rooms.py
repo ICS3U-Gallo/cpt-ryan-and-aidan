@@ -8,6 +8,12 @@ screen_width = sprite_size * 18
 screen_height = sprite_size * 10
 screen_title = "Temporary Title"
 
+"""
+This whole section is dedicated to
+setting up and preparing the layout
+of the map's rooms 
+"""
+
 
 class Room:
 
@@ -45,7 +51,7 @@ def startroom_setup():
                 wall.bottom = y
                 room.wall_list.append(wall)
 
-    room.background = arcade.load_texture("images/background_2.jpg")
+    room.background = arcade.load_texture("images/background_2.png")
 
     return room
 
@@ -81,7 +87,7 @@ def outside1_setup():
     wall.bottom = 5 * sprite_size
     room.wall_list.append(wall)
 
-    room.background = arcade.load_texture("images/background_2.jpg")
+    room.background = arcade.load_texture("images/background_3.png")
 
     return room
 
@@ -93,7 +99,7 @@ def startcave_setup():
 
     for x in (0, screen_width - sprite_size):
         for y in range(0, screen_height, sprite_size):
-            wall = arcade.Sprite("images/boxCrate_double.png", sprite_scale)
+            wall = arcade.Sprite("images/rockwall.png", sprite_scale)
             wall.left = x
             wall.bottom = y
             room.wall_list.append(wall)
@@ -101,7 +107,7 @@ def startcave_setup():
     for y in (0, screen_height - sprite_size):
         for x in range(0, screen_width, sprite_size):
             if (x != sprite_size * 3 and x != sprite_size * 4) or y != 0:
-                wall = arcade.Sprite("images/boxCrate_double.png",
+                wall = arcade.Sprite("images/rockwall.png",
                                      sprite_scale)
                 wall.left = x
                 wall.bottom = y
@@ -135,7 +141,7 @@ def outside2_setup():
                 wall.bottom = y
                 room.wall_list.append(wall)
 
-    room.background = arcade.load_texture("images/background_2.jpg")
+    room.background = arcade.load_texture("images/background_3.png")
 
     return room
 
@@ -165,7 +171,7 @@ def outside3_setup():
                 wall.bottom = y
                 room.wall_list.append(wall)
 
-    room.background = arcade.load_texture("images/background_2.jpg")
+    room.background = arcade.load_texture("images/background_2.png")
 
     return room
 
@@ -195,7 +201,7 @@ def outside4_setup():
                 wall.bottom = y
                 room.wall_list.append(wall)
 
-    room.background = arcade.load_texture("images/background_2.jpg")
+    room.background = arcade.load_texture("images/background_2.png")
 
     return room
 
@@ -207,7 +213,7 @@ def cave2shop_setup():
 
     for x in (0, screen_width - sprite_size):
         for y in range(0, screen_height, sprite_size):
-            wall = arcade.Sprite("images/boxCrate_double.png", sprite_scale)
+            wall = arcade.Sprite("images/rockwall.png", sprite_scale)
             wall.left = x
             wall.bottom = y
             room.wall_list.append(wall)
@@ -215,7 +221,7 @@ def cave2shop_setup():
     for y in (0, screen_height - sprite_size):
         for x in range(0, screen_width, sprite_size):
             if (x != sprite_size * 5 and x != sprite_size * 6) or y != 0:
-                wall = arcade.Sprite("images/boxCrate_double.png",
+                wall = arcade.Sprite("images/rockwall.png",
                                      sprite_scale)
                 wall.left = x
                 wall.bottom = y
@@ -250,7 +256,7 @@ def outside5_setup():
                 wall.bottom = y
                 room.wall_list.append(wall)
 
-    room.background = arcade.load_texture("images/background_2.jpg")
+    room.background = arcade.load_texture("images/background_2.png")
 
     return room
 
@@ -281,12 +287,12 @@ def river1_setup():
 
     for x in (sprite_size * 5, sprite_size * 6):
         for y in range(0, screen_height, sprite_size):
-            river = arcade.Sprite("images/river.png", sprite_scale)
+            river = arcade.Sprite("images/river.gif", sprite_scale)
             river.left = x
             river.bottom = y
             room.wall_list.append(river)
 
-    room.background = arcade.load_texture("images/background_2.jpg")
+    room.background = arcade.load_texture("images/background_3.png")
 
     return room
 
@@ -319,13 +325,13 @@ def river2_setup():
 
     for x in (sprite_size * 5, sprite_size * 6):
         for y in range(0, screen_height, sprite_size):
-            if (y != sprite_size * 5 and y != sprite_size * 6):
-                river = arcade.Sprite("images/river.png", sprite_scale)
+            if y != sprite_size * 5 and y != sprite_size * 6:
+                river = arcade.Sprite("images/river.gif", sprite_scale)
                 river.left = x
                 river.bottom = y
                 room.wall_list.append(river)
 
-    room.background = arcade.load_texture("images/background_2.jpg")
+    room.background = arcade.load_texture("images/background_3.png")
 
     return room
 
@@ -337,7 +343,7 @@ def cave3shop_setup():
 
     for x in (0, screen_width - sprite_size):
         for y in range(0, screen_height, sprite_size):
-            wall = arcade.Sprite("images/boxCrate_double.png", sprite_scale)
+            wall = arcade.Sprite("images/rockwall.png", sprite_scale)
             wall.left = x
             wall.bottom = y
             room.wall_list.append(wall)
@@ -345,7 +351,7 @@ def cave3shop_setup():
     for y in (0, screen_height - sprite_size):
         for x in range(0, screen_width, sprite_size):
             if (x != sprite_size * 5 and x != sprite_size * 6) or y != 0:
-                wall = arcade.Sprite("images/boxCrate_double.png",
+                wall = arcade.Sprite("images/rockwall.png",
                                      sprite_scale)
                 wall.left = x
                 wall.bottom = y
@@ -363,7 +369,7 @@ def cave4shop_setup():
 
     for x in (0, screen_width - sprite_size):
         for y in range(0, screen_height, sprite_size):
-            wall = arcade.Sprite("images/boxCrate_double.png", sprite_scale)
+            wall = arcade.Sprite("images/rockwall.png", sprite_scale)
             wall.left = x
             wall.bottom = y
             room.wall_list.append(wall)
@@ -371,7 +377,7 @@ def cave4shop_setup():
     for y in (0, screen_height - sprite_size):
         for x in range(0, screen_width, sprite_size):
             if (x != sprite_size * 5 and x != sprite_size * 6) or y != 0:
-                wall = arcade.Sprite("images/boxCrate_double.png",
+                wall = arcade.Sprite("images/rockwall.png",
                                      sprite_scale)
                 wall.left = x
                 wall.bottom = y
@@ -389,8 +395,8 @@ def cave5boss_setup():
 
     for x in (0, screen_width - sprite_size):
         for y in range(0, screen_height, sprite_size):
-            if (y != sprite_size * 4 and y != sprite_size * 5) or x == 0:
-                wall = arcade.Sprite("images/boxCrate_double.png",
+            if y != sprite_size * 4 and y != sprite_size * 5:
+                wall = arcade.Sprite("images/rockwall.png",
                                      sprite_scale)
                 wall.left = x
                 wall.bottom = y
@@ -398,12 +404,24 @@ def cave5boss_setup():
 
     for y in (0, screen_height - sprite_size):
         for x in range(0, screen_width, sprite_size):
-            wall = arcade.Sprite("images/boxCrate_double.png", sprite_scale)
+            wall = arcade.Sprite("images/rockwall.png", sprite_scale)
             wall.left = x
             wall.bottom = y
             room.wall_list.append(wall)
 
     room.background = arcade.load_texture("images/background.jpg")
+
+    return room
+
+
+def winroom_setup():
+    # I can't figure out how to make win screen
+    # so I made a win room in place
+    room = Room()
+
+    room.wall_list = arcade.SpriteList()
+
+    room.background = arcade.load_texture("images/background_2.jpg")
 
     return room
 
@@ -447,6 +465,9 @@ def create():
     rooms_list.append(room)
 
     room = cave5boss_setup()
+    rooms_list.append(room)
+
+    room = winroom_setup()
     rooms_list.append(room)
 
     return rooms_list
