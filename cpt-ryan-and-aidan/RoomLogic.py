@@ -427,26 +427,32 @@ def RoomLogic(player):
             player.itemtwo = False
             player.itemthree = False
     elif player.current_room == 12:
-        if player.player_sprite.center_x > screen_width:
-            player.current_room = 8
-            player.physics_engine = arcade.PhysicsEngineSimple(player.
-                                                               player_sprite,
-                                                               player.
-                                                               rooms
-                                                               [player.
-                                                                current_room].
-                                                               wall_list)
-            player.player_sprite.center_x = 0
-        elif player.player_sprite.center_x < 0:
-            player.current_room = 13
-            player.physics_engine = arcade.PhysicsEngineSimple(player.
-                                                               player_sprite,
-                                                               player.
-                                                               rooms
-                                                               [player.
-                                                                current_room].
-                                                               wall_list)
-            player.player_sprite.center_x = screen_width
+        if player.boss_defeated:
+            if player.player_sprite.center_x > screen_width:
+                player.current_room = 8
+                player.physics_engine = arcade.PhysicsEngineSimple(player.
+                                                                   player_sprite,
+                                                                   player.
+                                                                   rooms
+                                                                   [player.
+                                                                    current_room].
+                                                                   wall_list)
+                player.player_sprite.center_x = 0
+            elif player.player_sprite.center_x < 0:
+                player.current_room = 13
+                player.physics_engine = arcade.PhysicsEngineSimple(player.
+                                                                   player_sprite,
+                                                                   player.
+                                                                   rooms
+                                                                   [player.
+                                                                    current_room].
+                                                                   wall_list)
+                player.player_sprite.center_x = screen_width
+        else:
+            if player.player_sprite.center_x > screen_width:
+                player.player_sprite.center_x = screen_width
+            if player.player_sprite.center_x < 0:
+                player.player_sprite.center_x = 0
     elif player.current_room == 13:
         if player.player_sprite.center_x > screen_width:
             player.player_sprite.center_x = screen_width
