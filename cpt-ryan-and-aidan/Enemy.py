@@ -310,8 +310,6 @@ class Boss(arcade.Sprite):
             for i in range(-1, 2):
                 for j in range(-1, 2):
                     explosion = Explosion(game.explosion_texture_list)
-                    explosion.texture = arcade.load_texture(
-                        "images/explosion/explosion0000.png", 3)
                     explosion.center_x = self.center_x+i*32
                     explosion.center_y = self.center_y+j*32
                     game.explosions_list.append(explosion)
