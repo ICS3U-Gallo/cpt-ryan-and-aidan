@@ -316,6 +316,7 @@ class Boss(arcade.Sprite):
                     explosion.center_x = self.center_x+i*32
                     explosion.center_y = self.center_y+j*32
                     game.explosions_list.append(explosion)
+            game.boss_defeated = True
             self.kill()
 
 
