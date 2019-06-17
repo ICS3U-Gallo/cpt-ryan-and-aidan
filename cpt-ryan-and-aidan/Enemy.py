@@ -1,7 +1,6 @@
 import arcade
 import math
 import random
-import Menu
 
 sprite_scale = 0.5
 native_sprite = 128
