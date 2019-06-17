@@ -241,7 +241,8 @@ class MyGame(arcade.Window):
         # directory this .py file is in.
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
-
+        
+        self.boss_defeated = False
         self.game_start = False
         self.paused = False
         self.menu_page = 0
@@ -312,8 +313,8 @@ class MyGame(arcade.Window):
                 self.player_sprite, self.rooms[self.current_room].wall_list)
 
     def on_draw(self):
-        health_x = 20
-        health_y = screen_height - 50
+        health_x = 30
+        health_y = screen_height - 30
         """
         Render the screen.
         """
@@ -354,8 +355,9 @@ class MyGame(arcade.Window):
 
                 # Draw Player health and coins/arrows count
                 for i in range(self.player_sprite.health):
-                    arcade.draw_xywh_rectangle_filled(health_x, health_y, 20,
-                                                      20, arcade.color.BLUE)
+                    texture = arcade.load_texture("images/heart.png")
+                    arcade.draw_texture_rectangle(health_x, health_y, 25,
+                                                      25, texture, 0)
                     health_x += 50
                 texture = arcade.load_texture("images/coins.png")
                 arcade.draw_texture_rectangle(screen_width-2.5*sprite_size,
