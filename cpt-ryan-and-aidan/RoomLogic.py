@@ -39,7 +39,6 @@ def start_pickup_draw(player):
     old_guy.draw()
 
 
-
 def start_pickup_logic(player):
     # Does logic for the weapons
     if (player.player_sprite.center_x in range(480, 620) and
@@ -78,7 +77,7 @@ def shopdraw(player):
 
 
 def shoplogic(player):
-    #Does the logic for the shop
+    # Does the logic for the shop
     if (player.player_sprite.center_x in range(269, 331) and
        player.player_sprite.center_y in range(389, 431)):
         while player.itemone is False:
