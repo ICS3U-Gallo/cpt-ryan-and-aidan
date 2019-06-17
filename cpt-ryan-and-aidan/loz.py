@@ -25,7 +25,6 @@ boomboom = 60
 shop_list = [6, 10, 11]
 
 
-
 class Player(arcade.Sprite):
 
     def __init__(self):
@@ -36,7 +35,8 @@ class Player(arcade.Sprite):
         texture = arcade.load_texture("images/character.png",
                                       mirrored=True, scale=sprite_scale)
         self.textures.append(texture)
-        texture = arcade.load_texture("images/character.png", scale=sprite_scale)
+        texture = arcade.load_texture("images/character.png",
+                                      scale=sprite_scale)
         self.textures.append(texture)
 
         # By default, face right.
@@ -241,7 +241,7 @@ class MyGame(arcade.Window):
         # directory this .py file is in.
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
-        
+
         self.boss_defeated = False
         self.game_start = False
         self.paused = False
@@ -357,7 +357,7 @@ class MyGame(arcade.Window):
                 for i in range(self.player_sprite.health):
                     texture = arcade.load_texture("images/heart.png")
                     arcade.draw_texture_rectangle(health_x, health_y, 25,
-                                                      25, texture, 0)
+                                                  25, texture, 0)
                     health_x += 50
                 texture = arcade.load_texture("images/coins.png")
                 arcade.draw_texture_rectangle(screen_width-2.5*sprite_size,
